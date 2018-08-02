@@ -1,0 +1,366 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-ND|Win32">
+      <Configuration>Release-ND</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-ND|x64">
+      <Configuration>Release-ND</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>BaseCode</ProjectName>
+    <ProjectGuid>{D61F10F6-9970-407E-B1F5-E35C21948A99}</ProjectGuid>
+    <RootNamespace>basecode</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>../../Link/VC2k8.$(Configuration).$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>../../Link/VC2k8.$(Configuration).$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|Win32'">
+    <OutDir>../../Link/VC2k8.$(Configuration).$(Platform)\</OutDir>
+    <IntDir>$(OutDir)$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|x64'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>X64;_DEBUG;_LIB;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>../../../engine/lib/$(ProjectName)D64.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>X64;NDEBUG;_LIB;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>../../../engine/lib/$(ProjectName)64.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ND|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../;./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WINDOWS;_CRT_SECURE_NO_WARNINGS;VERSION_ND_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="7z\7zAlloc.c" />
+    <ClCompile Include="7z\7zBuf.c" />
+    <ClCompile Include="7z\7zCrc.c" />
+    <ClCompile Include="7z\7zCrcOpt.c" />
+    <ClCompile Include="7z\7zDec.cpp" />
+    <ClCompile Include="7z\7zFile.c" />
+    <ClCompile Include="7z\7zIn.c" />
+    <ClCompile Include="7z\7zShell.cpp" />
+    <ClCompile Include="7z\7zStream.c" />
+    <ClCompile Include="7z\Bcj2.c" />
+    <ClCompile Include="7z\Bra.c" />
+    <ClCompile Include="7z\Bra86.c" />
+    <ClCompile Include="7z\CpuArch.c" />
+    <ClCompile Include="7z\Lzma2Dec.c" />
+    <ClCompile Include="7z\LzmaDec.c" />
+    <ClCompile Include="7z\lzmaread.cpp" />
+    <ClCompile Include="7z\LZMA\Alloc.c" />
+    <ClCompile Include="7z\LZMA\LzFind.c" />
+    <ClCompile Include="7z\LZMA\LzFindMt.c" />
+    <ClCompile Include="7z\LZMA\LzmaDec.c" />
+    <ClCompile Include="7z\LZMA\LzmaEnc.c" />
+    <ClCompile Include="7z\LZMA\LzmaLib.c" />
+    <ClCompile Include="7z\LZMA\Threads.c" />
+    <ClCompile Include="7z\Ppmd7.c" />
+    <ClCompile Include="7z\Ppmd7Dec.c" />
+    <ClCompile Include="basefunc.cpp" />
+    <ClCompile Include="BaseLog.cpp" />
+    <ClCompile Include="ClientCryptor.cpp" />
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="d3des.c" />
+    <ClCompile Include="directory.cpp" />
+    <ClCompile Include="event.cpp" />
+    <ClCompile Include="findMatch.cpp" />
+    <ClCompile Include="frameAllocator.cpp" />
+    <ClCompile Include="FtpConn.cpp" />
+    <ClCompile Include="ImgContent.cpp" />
+    <ClCompile Include="ImgContentLayer.cpp" />
+    <ClCompile Include="IniFile.cpp" />
+    <ClCompile Include="LogOut.cpp" />
+    <ClCompile Include="md5.cpp" />
+    <ClCompile Include="MemHeap.cpp" />
+    <ClCompile Include="memstream.cpp" />
+    <ClCompile Include="NetworkAddress.cpp" />
+    <ClCompile Include="Operate.cpp" />
+    <ClCompile Include="path.cpp" />
+    <ClCompile Include="RC5.cpp" />
+    <ClCompile Include="ScriptOpt.cpp" />
+    <ClCompile Include="str.cpp" />
+    <ClCompile Include="StrCoding.cpp" />
+    <ClCompile Include="stream.cpp" />
+    <ClCompile Include="StringData.cpp" />
+    <ClCompile Include="stringFunctions.cpp" />
+    <ClCompile Include="str_conver.cpp" />
+    <ClCompile Include="TcpClientSocket.cpp" />
+    <ClCompile Include="TcpServerSocket.cpp" />
+    <ClCompile Include="threadif.cpp" />
+    <ClCompile Include="timeClass.cpp" />
+    <ClCompile Include="TimeVal.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="UdpStack.cpp" />
+    <ClCompile Include="ui_func.cpp" />
+    <ClCompile Include="unicode.cpp" />
+    <ClCompile Include="UpdateThread.cpp" />
+    <ClCompile Include="VerControl.cpp" />
+    <ClCompile Include="VFile.cpp" />
+    <ClCompile Include="VHttp.cpp" />
+    <ClCompile Include="VNameMutex.cpp" />
+    <ClCompile Include="ZipFile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="7z\LZMA\Alloc.h" />
+    <ClInclude Include="7z\LZMA\LzFind.h" />
+    <ClInclude Include="7z\LZMA\LzFindMt.h" />
+    <ClInclude Include="7z\LZMA\LzHash.h" />
+    <ClInclude Include="7z\LZMA\LzmaDec.h" />
+    <ClInclude Include="7z\LZMA\LzmaEnc.h" />
+    <ClInclude Include="7z\LZMA\LzmaLib.h" />
+    <ClInclude Include="7z\LZMA\Threads.h" />
+    <ClInclude Include="7z\LZMA\Types.h" />
+    <ClInclude Include="basefunc.h" />
+    <ClInclude Include="basefunc_metro.h" />
+    <ClInclude Include="basehdr.h" />
+    <ClInclude Include="BaseLog.h" />
+    <ClInclude Include="BaseMacro.h" />
+    <ClInclude Include="BaseType.h" />
+    <ClInclude Include="ClientCryptor.h" />
+    <ClInclude Include="Clipboard.h" />
+    <ClInclude Include="Connection.h" />
+    <ClInclude Include="d3des.h" />
+    <ClInclude Include="directory.h" />
+    <ClInclude Include="endian.h" />
+    <ClInclude Include="event.h" />
+    <ClInclude Include="findMatch.h" />
+    <ClInclude Include="frameAllocator.h" />
+    <ClInclude Include="FtpConn.h" />
+    <ClInclude Include="graphinc.h" />
+    <ClInclude Include="Http_def.h" />
+    <ClInclude Include="ImgContent.h" />
+    <ClInclude Include="ImgContentLayer.h" />
+    <ClInclude Include="IniFile.h" />
+    <ClInclude Include="lockhelper.h" />
+    <ClInclude Include="LogOut.h" />
+    <ClInclude Include="md5.h" />
+    <ClInclude Include="MemHeap.h" />
+    <ClInclude Include="mempool.h" />
+    <ClInclude Include="memstream.h" />
+    <ClInclude Include="NetworkAddress.h" />
+    <ClInclude Include="Operate.h" />
+    <ClInclude Include="path.h" />
+    <ClInclude Include="platformIntrinsics.h" />
+    <ClInclude Include="rapidxml.hpp" />
+    <ClInclude Include="rapidxml_iterators.hpp" />
+    <ClInclude Include="rapidxml_print.hpp" />
+    <ClInclude Include="rapidxml_utils.hpp" />
+    <ClInclude Include="RC5.h" />
+    <ClInclude Include="Referenced.h" />
+    <ClInclude Include="ref_ptr.h" />
+    <ClInclude Include="ScriptOpt.h" />
+    <ClInclude Include="SingleQueue.h" />
+    <ClInclude Include="str.h" />
+    <ClInclude Include="StrCoding.h" />
+    <ClInclude Include="stream.h" />
+    <ClInclude Include="StringData.h" />
+    <ClInclude Include="stringFunctions.h" />
+    <ClInclude Include="stringhashmap.h" />
+    <ClInclude Include="str_conver.h" />
+    <ClInclude Include="TcpClientSocket.h" />
+    <ClInclude Include="TcpServerSocket.h" />
+    <ClInclude Include="threadif.h" />
+    <ClInclude Include="threadopt.h" />
+    <ClInclude Include="threadpool.h" />
+    <ClInclude Include="timeClass.h" />
+    <ClInclude Include="TimeVal.h" />
+    <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="UdpStack.h" />
+    <ClInclude Include="ui_func.h" />
+    <ClInclude Include="unicode.h" />
+    <ClInclude Include="UpdateThread.h" />
+    <ClInclude Include="vcondition.h" />
+    <ClInclude Include="VerControl.h" />
+    <ClInclude Include="VFile.h" />
+    <ClInclude Include="VHttp.h" />
+    <ClInclude Include="vmutex.h" />
+    <ClInclude Include="VNameMutex.h" />
+    <ClInclude Include="WheelBuff.h" />
+    <ClInclude Include="ZipFile.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
