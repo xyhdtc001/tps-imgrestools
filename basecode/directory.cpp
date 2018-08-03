@@ -352,7 +352,7 @@ bool VDirectory::EnumAllFunc( const Data& fullDir, const Data& relaDir, EnumFunc
 		else if( findData.cFileName )
 		{
 			//if ( func(findData.cFileName,fullDir+findData.cFileName,"",pParam) )
-			if ( !func(findData.cFileName,fullDir,relaDir,pParam) )
+			if (func && !func(findData.cFileName,fullDir,relaDir,pParam) )
 			{
 				break;
 			}

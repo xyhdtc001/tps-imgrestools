@@ -48,9 +48,6 @@
     <ClInclude Include="imgres_tool_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ximg_wrap.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="img_tools_common.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -75,9 +72,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="imgresxml_cmp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ximg_wrap.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="img_tools_common.cpp">

@@ -22,12 +22,24 @@ CImgToolComm* CImgToolComm::GetSignleInstance()
 	return CImgToolComm::m_signleInstance;
 }
 
+void CImgToolComm::setWorkDir(LPCSTR szWorkDir)
+{
+	if (szWorkDir)
+	{
+		m_workDir = szWorkDir;
+		m_workDir.makePath();
+		init_map_dirtoname();
+	}
+}
+
 void CImgToolComm::init_map_dirtoname()
 {
+	Data filePath = m_workDir+ "common_set_dirtoname.xml";
 	CXmlOprate xmlOp;
-	xmlOp.InitXmlFile("common_set_dirtoname.xml");
+	xmlOp.InitXmlFile(m_workDir.c_str());
 	if (!xmlOp.GetNodePtr())
 	{
+		LogOut(MAIN,LOG_ERR,"faild open %s,xml init failed ." ,filePath.c_str());
 		return;
 	}
 	m_MapDirToName.clear();

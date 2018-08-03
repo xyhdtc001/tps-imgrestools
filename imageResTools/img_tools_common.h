@@ -21,6 +21,11 @@ public:
 	static CImgToolComm* GetSignleInstance();
 
 	/*
+	 *	设置工作目录
+	 */
+	void setWorkDir(LPCSTR szWorkDir);
+
+	/*
 	 *	初始化表,目录-->对应的imgset name .xml配置.
 	 */
 	void init_map_dirtoname();
@@ -38,7 +43,7 @@ public:
 private:
 
 	std::map<Data, _stImgSetInfo> m_MapDirToName;
-
+	Data m_workDir;
 };
 
 

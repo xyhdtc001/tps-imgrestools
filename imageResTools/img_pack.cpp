@@ -4,11 +4,9 @@
 
 #include "basecode/VFile.h"
 #include "basecode/directory.h"
-#include "ximg_wrap.h"
 #include "imgresxml_cmp.h"
 #include "img_tools_common.h"
 #include "sync_handle.h"
-#include "ximg_wrap.h"
 
 CImgPack::CImgPack()
 {
@@ -58,7 +56,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 		return 1;
 	}
 	//单目录打包.
-	bool bReTry = false;
+	bool bReTry = true;
 	Data dDir = szPackSourcePath;
 	dDir.makePath();
 	dDir.formatPath();
@@ -67,15 +65,21 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 	{
 		return 2;
 	}
-	VDirectory vDir(dDir);
-	Data dDirName =  vDir.getDirName(vDir.getDirNum()-1);
+
+	std::vector<Data>vecPathSpit;
+	dDir.split("/", vecPathSpit);
+	if (vecPathSpit.size()==0)
+	{
+		return 2;
+	}
+	Data dDirName = vecPathSpit[vecPathSpit.size() - 1];
 	char szBuffer[4096];
 	
 	int nRes = 0;
 
 	while (bReTry)
 	{
-		bReTry = FALSE;
+		bReTry = false;
 		Data dXMlPath = m_strOutPutDir + dDirName;
 		dXMlPath += ".xml";
 		Data dPNGPath = m_strOutPutDir + dDirName;
@@ -97,6 +101,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 		memset(szCommandLine, 0, 1024);
 		memset(szBuffer, 0, 4096);
 		//exe,XML,图片,目录
+		dDirName = m_strOutPutDir + dDirName;
 		sprintf_s(szCommandLine,"%s --max-size 1024 --data %s.xml --format cegui --sheet %s.png %s",m_strTexturePackExePath.c_str(), dDirName.c_str(), dDirName.c_str(),szPackSourcePath);
 
 		SECURITY_ATTRIBUTES sa;
@@ -179,7 +184,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
  *	1.对比旧的XML文件，将新增的文件移动到新的文件夹.
  *  2.不存在旧的可以对比的XML文件，则估算图片大小进行拆分.
  */
-int CImgPack::img_pack_split(Data dToSplit)
+int CImgPack::img_pack_split(Data dToSplit,Data& newDir)
 {
 	if ( m_pXmlCur == NULL)
 	{
@@ -240,7 +245,18 @@ int CImgPack::img_pack_split(Data dToSplit)
 	//情况2.
 	std::vector<Data> toSplitFile;
 	int nCount = img_pack_calc(m_strMainResDir+dToSplit, vecFiles, toSplitFile);
-
+	if (nCount > 0)
+	{
+		//拆分文件夹.
+		Data dDirNewExport = "";
+		int nRes = CSyncHandle::split_dir(toSplitFile, m_strMainResDir + dToSplit, dDirNewExport);
+		if (nRes != toSplitFile.size())
+		{
+			LogOut(MAIN, LOG_ERR, "splitDir Fail ");
+			return -6;
+		}
+		newDir = dDirNewExport;
+	}
 	return 0;
 }
 
@@ -252,12 +268,95 @@ struct  _stImgCalcInfo
 		nHeigth = 0;
 		nImgIndex = 0;
 		bInclude = false;
+		xPos = 0;
+		yPos = 0;
 	}
 	int nWidth;
 	int nHeigth;
 	int nImgIndex;
 	bool bInclude;
+	int xPos;
+	int yPos;
 };
+/************************************************************************/
+/* 拼图片算法                                                           */
+/************************************************************************/
+
+
+/*
+ *	左上角开始寻找是否有大小合适的区域.
+ */
+int find_rect_area(int* szPic,CSize szRect,bool bSetRect,int nMaxLen,CPoint &ptLT)
+{
+	int nResX = -1;
+	int nResY = -1;
+	//先匹配宽度.
+	bool bOk = false;
+	int nCurLineX = 0;
+	int nCurLineY = 0;
+	for (int nIndexX = 0; nIndexX < nMaxLen; ++nIndexX)
+	{
+		for (int nIndexY = 0; nIndexY < nMaxLen;++ nIndexY)
+		{
+			if (nIndexX + szRect.cx >=nMaxLen)
+			{
+				nCurLineX = 0;
+				continue;
+			}
+			int nCurPos = nIndexX + nIndexY*nMaxLen;
+			int &nPointValue = *(szPic + nCurPos);
+			if (nPointValue > 0)
+			{
+				nCurLineX = 0;
+				continue;
+			}
+			++nCurLineX;
+			bool bVLineOk = true;
+			//匹配高度是否足够.
+			for (int nIndexEx = 0; nIndexEx < szRect.cy; ++nIndexEx)
+			{
+				if (nIndexEx + nIndexY >= nMaxLen)
+				{
+					bVLineOk = false;
+					break;
+				}
+				int &nPointValue = *(szPic + nCurPos + nIndexEx*nMaxLen);
+				if (nPointValue>0)
+				{
+					bVLineOk = false;
+					break;
+				}
+			}
+			if (bVLineOk == false)
+			{
+				nCurLineX = 0;
+				continue;
+			}
+			if(nCurLineX == szRect.cx)
+			{ 
+				nResX = nIndexX;
+				nResY = nIndexY;
+				bOk = true;
+				break;
+			}
+		}
+	}
+	ptLT.x = nResX;
+	ptLT.y = nResY;
+	if (nResY != -1 && nResX != -1)
+	{
+		if (bSetRect)
+		{
+			// 赋值.
+			for (int nIndex = nResY; nIndex < szRect.cy;++nIndex)
+			{
+				memset(szPic+nResX+nMaxLen*nIndex,1,szRect.cx);
+			}
+		}
+		return 0;
+	}
+	return -1;
+}
 
 int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::vector<Data>& vecResFiles)
 {
@@ -275,13 +374,12 @@ int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::v
 			LogOut(MAIN, LOG_WARN, "img_pack_calc invlid file %s",dImgAbsPath.c_str());
 			continue;
 		}
-		CXimgWrap ximg;
-
-		if(ximg.Load(dImgAbsPath.c_str()))
+		CImage img;
+		if(img.Load(dImgAbsPath.c_str()))
 		{
 			_stImgCalcInfo st;
-			st.nHeigth = ximg.GetHeight();
-			st.nWidth = ximg.GetWidth();
+			st.nHeigth = img.GetHeight();
+			st.nWidth = img.GetWidth();
 			st.nImgIndex = nIndex;
 			vecStInfo.push_back(st);
 			mapWidth[st.nWidth].push_back(vecStInfo.size() - 1);
@@ -294,11 +392,8 @@ int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::v
 		}
 	}
 	//开始拼图片.
-	int  w[1024] = { 0 };
-	int  h[1024] = { 0 };
+	int  picData[1024*1024] = { 0 };
 
-	int nCurMaxWidth = 0;
-	int nCurMaxHeigth = 0;
 
 	std::map<int, std::vector<int>>::iterator widthIter = mapWidth.begin();
 	for (widthIter; widthIter != mapWidth.end();++widthIter)
@@ -307,25 +402,34 @@ int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::v
 		for (int nImgIndex = 0; nImgIndex < widthIter->second.size();++nImgIndex)
 		{
 			_stImgCalcInfo & stInfo = vecStInfo[vecInt[nImgIndex]];
-
-
-
-
+			//寻找足够大小的行.
+			CPoint pt;
+			DWORD dwTime = GetTickCount();
+			int nRes = find_rect_area(picData,CSize(stInfo.nWidth,stInfo.nHeigth),true,1024,pt);
+			dwTime = GetTickCount() - dwTime;
+			LogOut(MAIN,LOG_WARN,"pic process time %d,dir:%s,res:%d",dwTime,dAbsDir.c_str(),nRes);
+			if (nRes >= 0)
+			{
+				stInfo.bInclude = true;
+				stInfo.xPos = pt.x;
+				stInfo.yPos = pt.y;
+			}
+			else
+			{
+				vecResFiles.push_back(vecFiles[stInfo.nImgIndex]);
+			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-	return nRes;
+	return vecResFiles.size();
 }
+
+
+/************************************************************************/
+/* 拼图片算法                                          END              */
+/************************************************************************/
+
+
+
 
 int CImgPack::img_cmp_set_add(const _stImgSetInfo &imgSetA, _stImgSetInfo& imgSetB, std::vector<Data>& vecRes)
 {
@@ -398,58 +502,66 @@ void CImgPack::setOutPutDir(const char* szOutPutDir)
 
 
 
-bool emun_file_callback(const Data& filename, const Data& filepath, const Data& relaDir, void* pParam)
+
+bool CImgPack::PackSignDir(const Data& folderPath)
 {
-	if (!pParam)
-	{
-		return false;
-	}
-	CImgPack* lpImgPack = (CImgPack*)pParam;
-	return true;
-}
-
-bool enum_dir_callback(const Data& folderPath, const Data& folder, void* pParam)
-{
-	if (!pParam)
-	{
-		return false;
-	}
-
-	VDirectory vd(folderPath);
-	int nMyDirNumber = vd.getDirNum();
-
-	CImgPack* lpImgPack = (CImgPack*)pParam;
-	int nCurDeep = nMyDirNumber - lpImgPack->get_work_dir_num();
-	if (nCurDeep >0 && nCurDeep >= lpImgPack->m_nDeep )
-	{
-		//超出目录层级
-		return true;
-	}
 
 	Data dFloderPath = folderPath;
 
 	dFloderPath.formatPath();
 
-	DWORD dwRes = lpImgPack->imp_pack(dFloderPath.c_str());
+	DWORD dwRes = imp_pack(dFloderPath.c_str());
 	if (dwRes == 11)
 	{
 		//需要拆分文件.
-		
+		Data dNewDir;
+		int nRes = img_pack_split(dFloderPath, dNewDir);
+		if (nRes < 0 )
+		{
+			LogOut(MAIN,LOG_ERR,"enum_dir_callback split error ,nRes:%d",nRes);
+			return false;
+		}
+		//重新扫描整理文件.
+		if (PackSignDir(dFloderPath))
+		{
+			return PackSignDir(dNewDir);
+		}
+		else
+		{
+			return false;
+		}
 	}
-
+	LogOut(MAIN,LOG_WARN,"enum_dir_callback %s ,res:%d",dFloderPath.c_str(),dwRes);
+	return dwRes == 0;
 }
 
-bool CImgPack::startPack()
+bool CImgPack::startPack(bool bChildDir)
 {
-	if (!m_bChildDir)
+	bool bRes = true;
+	m_bChildDir = bChildDir;
+	VDirectory vd(m_strMainResDir);
+
+	if (m_bChildDir)
 	{
-		VDirectory::EnumAllFunc(m_strMainResDir, m_strOutPutDir, NULL, enum_dir_callback, this);
+		vd.getSubDirs();
+
+		std::vector<Data> vecDir = vd.getDirVec();
+		for (int nIndex = 0; nIndex < vecDir.size();++nIndex)
+		{
+			if (vecDir[nIndex] == "new_t_single")
+			{
+				continue;
+			}
+			if (!PackSignDir(m_strMainResDir + vecDir[nIndex]))
+			{
+				bRes = false;
+				break;
+			}
+		}
 	}
 	else
 	{
-		
+		bRes = PackSignDir(m_strMainResDir);
 	}
-
-
-	return false;
+	return bRes;
 }

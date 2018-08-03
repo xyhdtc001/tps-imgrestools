@@ -41,10 +41,16 @@ public:
 	/*
 	 *	开始打包.
 	 */
-	bool startPack();
+	bool startPack(bool bChildDir = true);
 
 
 protected:
+
+	/*
+	 *	单个目录处理.
+	 */
+	bool PackSignDir(const Data& folderPath);
+
 	/*
 	 *	单目录打包.使用 teurepack
 	 */
@@ -60,7 +66,7 @@ protected:
 	/*
 	 *	拆分文件夹.
 	 */
-	int img_pack_split(Data dToSplit);
+	int img_pack_split(Data dToSplit, Data& vecNewEx);
 
 
 	/*
@@ -90,6 +96,9 @@ private:
 	int m_nDeep; //子目录深度.
 
 	int m_nWorkDirNum; //目录深度.
+
+
+	bool m_bSyncLanRes;// 是否同步海外版本.
 
 	struct _st_imgResInfo
 	{

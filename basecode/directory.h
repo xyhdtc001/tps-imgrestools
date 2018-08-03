@@ -39,6 +39,7 @@ public:
 
 	uint32 getFileNum();
 	uint32 getDirNum();
+	const std::vector<Data>& getDirVec() { return _dirVec; };
 
 	void setIncludeFile( const Data& data );
 	void setExcludeFile( const Data& data );
@@ -47,6 +48,7 @@ public:
 	bool isIncludeFile( const Data& file );
 	bool isExcludeFile( const Data& file );
 	bool isExcludeDir( const Data& dir );
+
 
 	static bool rename( const Data& from, const Data& to );
 	static bool EnumAllFunc( const Data& fullDir, const Data& relaDir, EnumFunc func, FolderFunc folderFunc=NULL, void* pParam=NULL ,bool bChildDir=true);

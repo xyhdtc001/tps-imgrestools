@@ -199,19 +199,41 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	CString strExePath;
 	GetDlgItemText(IDC_EDIT_EXEPATH, strExePath);
 
+	//tp exe 路径.
 	CString strPackPath;
 	GetDlgItemText(IDC_EDIT_PACKPATH, strPackPath);
 
+	// 输出目录
+	CString strOutPath;
+	GetDlgItemText(IDC_EDIT_OUTPUT, strOutPath);
+
+	//runpath 目录.
+	CString strRunPathDir;
+	GetDlgItemText(IDC_EDIT_RUNPATHDIR,strRunPathDir);
+
+
+	//子目录.
 	CButton *pBtn = (CButton*)(GetDlgItem(IDC_CHECK_CHILDDIR));
 	bool bChildDir = pBtn->GetCheck() == TRUE;
 
 
 	// 设置参数.
 	CImgPack imgPack;
-	imgPack;
+	imgPack.setMainDir(strPackPath.GetBuffer());
 
+	imgPack.setOutPutDir(strOutPath.GetBuffer());
 
+	imgPack.setTexturepackExePath(strExePath.GetBuffer());
 
+	bool bRes = imgPack.startPack(bChildDir);
+	if (bRes)
+	{
+		AfxMessageBox("sucessed!");
+	}
+	else
+	{
+		AfxMessageBox("error");
+	}
 }
 
 
