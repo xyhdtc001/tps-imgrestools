@@ -6,6 +6,7 @@
 #include "imageResTools.h"
 #include "imageResToolsDlg.h"
 #include "afxdialogex.h"
+#include "ImgResXmlOpreate.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -217,6 +218,19 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	bool bChildDir = pBtn->GetCheck() == TRUE;
 
 
+	//imgresxml 
+	CImgResXmlOpreate imgResXmlLast; //上次的XML文件.(即将生成的XML中的新文件.)
+	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
+
+	imgResXmlCur.set_work_dir(strRunPathDir);
+	Data dPackPath = strRunPathDir.GetBuffer();
+	dPackPath.makePath();
+	dPackPath.formatPath();
+	dPackPath = dPackPath + FILE_LASTIMGRES_STR;
+	imgResXmlLast.InitXmlFile(dPackPath.c_str());
+	imgResXmlCur.set_lastxml_ptr(&imgResXmlLast);
+	imgResXmlCur.set_tp_out_dir(strOutPath.GetBuffer());
+
 	// 设置参数.
 	CImgPack imgPack;
 	imgPack.setMainDir(strPackPath.GetBuffer());
@@ -225,7 +239,25 @@ void CimageResToolsDlg::OnBnClickedButton1()
 
 	imgPack.setTexturepackExePath(strExePath.GetBuffer());
 
+	imgPack.setXmlPtr(&imgResXmlCur,&imgResXmlLast);
+
 	bool bRes = imgPack.startPack(bChildDir);
+	if(bRes)
+	{
+		//合并到XML里 .
+		const std::vector<Data>& vecResDir = imgPack.getPackDirVec();
+		for (int nIndex; nIndex < vecResDir.size();++ nIndex)
+		{
+			imgResXmlCur.joinXmlFile(vecResDir[nIndex].c_str());
+		}
+	}
+
+
+	//输出差异信息.
+
+
+
+
 	if (bRes)
 	{
 		AfxMessageBox("sucessed!");

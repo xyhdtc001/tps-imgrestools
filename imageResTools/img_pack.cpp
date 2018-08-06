@@ -173,7 +173,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 			continue;
 		}
 		nRes = 0; //³É¹¦.
-
+		m_curVecOutPut.push_back(dDirName);
 	}
 
 	return nRes;
@@ -503,6 +503,18 @@ void CImgPack::setOutPutDir(const char* szOutPutDir)
 
 
 
+void CImgPack::setXmlPtr(CImgresXmlCmp *lpXmlCur, CImgresXmlCmp* lpXmlLast)
+{
+	if (lpXmlLast)
+	{
+		m_pXmlCur = lpXmlCur;
+	}
+	if (lpXmlLast)
+	{
+		lpXmlLast = lpXmlLast;
+	}
+}
+
 bool CImgPack::PackSignDir(const Data& folderPath)
 {
 
@@ -537,6 +549,7 @@ bool CImgPack::PackSignDir(const Data& folderPath)
 
 bool CImgPack::startPack(bool bChildDir)
 {
+	m_curVecOutPut.clear();
 	bool bRes = true;
 	m_bChildDir = bChildDir;
 	VDirectory vd(m_strMainResDir);

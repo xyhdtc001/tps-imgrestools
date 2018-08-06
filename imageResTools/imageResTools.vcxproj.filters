@@ -51,6 +51,9 @@
     <ClInclude Include="img_tools_common.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ImgResXmlOpreate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imageResTools.cpp">
@@ -75,6 +78,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="img_tools_common.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ImgResXmlOpreate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

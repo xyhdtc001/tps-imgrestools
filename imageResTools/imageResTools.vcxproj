@@ -110,6 +110,7 @@
     <ClInclude Include="CXmlOprate.h" />
     <ClInclude Include="imageResTools.h" />
     <ClInclude Include="imageResToolsDlg.h" />
+    <ClInclude Include="ImgResXmlOpreate.h" />
     <ClInclude Include="imgresxml_cmp.h" />
     <ClInclude Include="imgres_tool_data.h" />
     <ClInclude Include="img_pack.h" />
@@ -123,6 +124,7 @@
     <ClCompile Include="CXmlOprate.cpp" />
     <ClCompile Include="imageResTools.cpp" />
     <ClCompile Include="imageResToolsDlg.cpp" />
+    <ClCompile Include="ImgResXmlOpreate.cpp" />
     <ClCompile Include="imgresxml_cmp.cpp" />
     <ClCompile Include="img_pack.cpp" />
     <ClCompile Include="img_tools_common.cpp" />

@@ -33,6 +33,11 @@ public:
 	 */
 	void setOutPutDir(const char* szOutPutDir);
 
+	/*
+	 *	设置XML 指针
+	 */
+	void setXmlPtr(CImgresXmlCmp *lpXmlCur, CImgresXmlCmp* lpXmlLast);
+
 
 /************************************************************************/
 /*  业务接口                                                            */
@@ -43,6 +48,11 @@ public:
 	 */
 	bool startPack(bool bChildDir = true);
 
+
+	/*
+	 *	获取打包成功的目录.
+	 */
+	const std::vector<Data>& getPackDirVec() { return m_curVecOutPut; };
 
 protected:
 
@@ -109,6 +119,7 @@ private:
 
 	CImgresXmlCmp *m_pXmlCur; //当前XML
 	CImgresXmlCmp *m_pXmlLast;//上次XML
+	std::vector<Data> m_curVecOutPut;
 };
 
 

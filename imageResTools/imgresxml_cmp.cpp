@@ -47,7 +47,7 @@ bool CImgresXmlCmp::InitXmlFile(string strFile)
 						string strImgName = pImage->Attribute("Name");
 						imgsetMap[strImgName].strName = strImgName;
 						imgsetMap[strImgName].nWidth = pImage->IntAttribute("Width");
-						imgsetMap[strImgName].nHeigth = pImage->Int64Attribute("Height");
+						imgsetMap[strImgName].nHeigth = pImage->IntAttribute("Height");
 					}
 					pImage = pImage->NextSiblingElement("Image");
 				}
@@ -62,45 +62,60 @@ int CImgresXmlCmp::cmpImgresXmlFile(const char* szXmlExPath,bool bImgSetCmp)
 {
 	if (!m_pDoc )
 	{
-		return 0;
+		return -1;
 	}
 	CImgresXmlCmp xmlEx;
 	xmlEx.InitXmlFile(szXmlExPath);
 	if (!xmlEx.GetNodePtr())
 	{
-		return 0;
+		return -1;
 	}
 	//比较2 个XML的map
 
+	int nRes = cmp_imgRes_xmlFileSet(xmlEx.getMapInfo(),false,bImgSetCmp);
+	return nRes;
+}
+
+int CImgresXmlCmp::cmp_imgRes_xmlFileSet(const std::map<string, _stImgSetInfo>& xmlEx, bool bJoin ,bool bImgSetCmp)
+{
 	std::map<string, _stImgSetInfo>::iterator itOrg = m_mapImgInfo.begin();
+	std::vector<string>vecFindSet;
 	while (itOrg != m_mapImgInfo.end())
 	{
-		do 
+		do
 		{
-			if (xmlEx.m_mapImgInfo.find(itOrg->first) == xmlEx.m_mapImgInfo.end())
+			if (xmlEx.find(itOrg->first) == xmlEx.end())
 			{
 				if (bImgSetCmp)
 				{
 					diffMapDee[itOrg->first] = itOrg->second;
+					if (bJoin)
+					{
+						itOrg->second = _stImgSetInfo();
+					}
 				}
 				break;
 			}
-			xmlEx.m_mapImgInfo[itOrg->first].bFind = true;
-			diffMapAdd[itOrg->first].bAutoScal = xmlEx.m_mapImgInfo[itOrg->first].bAutoScal;
-			diffMapAdd[itOrg->first].bOwner = xmlEx.m_mapImgInfo[itOrg->first].bOwner;
-			diffMapAdd[itOrg->first].nWidth = xmlEx.m_mapImgInfo[itOrg->first].nWidth;
-			diffMapAdd[itOrg->first].nHeigth = xmlEx.m_mapImgInfo[itOrg->first].nHeigth;
-			diffMapAdd[itOrg->first].strName = xmlEx.m_mapImgInfo[itOrg->first].strName;
-			diffMapAdd[itOrg->first].strFilePath = xmlEx.m_mapImgInfo[itOrg->first].strFilePath;
+			vecFindSet.push_back(itOrg->first);
+			std::map<string, _stImgSetInfo>::const_iterator itExMap = xmlEx.find(itOrg->first);
+			diffMapAdd[itOrg->first].bAutoScal = itExMap->second.bAutoScal;
+			diffMapAdd[itOrg->first].bOwner = itExMap->second.bOwner;
+			diffMapAdd[itOrg->first].nWidth = itExMap->second.nWidth;
+			diffMapAdd[itOrg->first].nHeigth = itExMap->second.nHeigth;
+			diffMapAdd[itOrg->first].strName = itExMap->second.strName;
+			diffMapAdd[itOrg->first].strFilePath = itExMap->second.strFilePath;
 
 			//初始化.
 			diffMapDee[itOrg->first] = diffMapAdd[itOrg->first];
-			
+
 			IMGSETMAP& imgSet = itOrg->second.imgMap;
-			IMGSETMAP& imgSetEx = xmlEx.m_mapImgInfo[itOrg->first].imgMap;
+			const IMGSETMAP& imgSetEx = itExMap->second.imgMap;
 			IMGSETMAP& imgSetAdd = diffMapAdd[itOrg->first].imgMap;
 			IMGSETMAP& imgSetDee = diffMapDee[itOrg->first].imgMap;
+			IMGSETMAP& imgSetModify = diffMapModify[itOrg->first].imgMap;
 			IMGSETMAP::iterator imgIter = imgSet.begin();
+			std::vector<string>vecFind;
+			vecFind.clear();
 			while (imgIter != imgSet.end())
 			{
 				if (imgSetEx.find(imgIter->first) == imgSetEx.end())
@@ -110,20 +125,32 @@ int CImgresXmlCmp::cmpImgresXmlFile(const char* szXmlExPath,bool bImgSetCmp)
 				}
 				else
 				{
-					imgSetEx[imgIter->first].bFind = true;
+					IMGSETMAP::const_iterator imgIterEx = imgSetEx.find(imgIter->first);
+					vecFind.push_back(imgIter->first);
+					if (imgIterEx->second.nWidth != imgIter->second.nWidth || \
+						imgIterEx->second.nHeigth != imgIter->second.nHeigth)
+					{
+						imgSetModify[imgIter->first] = imgIterEx->second;
+					}
 				}
 				++imgIter;
 			}
 
-			IMGSETMAP::iterator imgIterEx = imgSetEx.begin();
+			IMGSETMAP::const_iterator imgIterEx = imgSetEx.begin();
 			//新增的图片.
 			while (imgIterEx != imgSetEx.end())
 			{
-				if (imgIterEx->second.bFind == false)
+				if (std::find(vecFind.begin(),vecFind.end(),imgIterEx->first) == vecFind.end())
 				{
 					imgSetAdd[imgIterEx->first] = imgIterEx->second;
 				}
 				++imgIterEx;
+			}
+
+			//替换新数据.
+			if (bJoin)
+			{
+				itOrg->second = itExMap->second;
 			}
 		} while (0);
 
@@ -131,12 +158,17 @@ int CImgresXmlCmp::cmpImgresXmlFile(const char* szXmlExPath,bool bImgSetCmp)
 	}
 
 	//新增的节点.
-	std::map<string, _stImgSetInfo>::iterator itExSet = xmlEx.m_mapImgInfo.begin();
-	while (itExSet != xmlEx.m_mapImgInfo.end())
+	std::map<string, _stImgSetInfo>::const_iterator itExSet = xmlEx.begin();
+	while (itExSet != xmlEx.end())
 	{
-		if (itExSet->second.bFind == false)
+		if (std::find(vecFindSet.begin(), vecFindSet.end(), itExSet->first) == vecFindSet.end())
 		{
 			diffMapDee[itExSet->first] = itExSet->second;
+			//替换新数据.
+			if (bJoin)
+			{
+				m_mapImgInfo[itExSet->first] = itExSet->second;;
+			}
 		}
 		++itExSet;
 	}

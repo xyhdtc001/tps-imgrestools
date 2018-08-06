@@ -4,6 +4,12 @@
 
 #include <map>
 
+
+//目录信息.
+#define		DIR_IMGRESXML_STR			"data/ui/resourcexml/"
+#define		FILE_IMGRESXML_STR			"data/ui/resourcexml/imagesetresource.xml"
+#define     FILE_LASTIMGRES_STR         "last_imgresset.xml"
+
 // 单图片信息
 struct  _stImgInfo
 {
@@ -12,14 +18,14 @@ struct  _stImgInfo
 		strName = "";
 		nWidth = 0;
 		nHeigth = 0;
-		bFind = false;
 		memset(szMD5,0,65);
 	}
 	std::string strName;
 	int nWidth;
 	int nHeigth;
-	bool bFind;
 	char szMD5[65];
+	int nPosX;
+	int nPosY;
 };
 
 typedef std::map<string, _stImgInfo> IMGSETMAP;
@@ -37,7 +43,6 @@ struct  _stImgSetInfo
 		bAutoScal = false;
 		bOwner = true;
 		imgMap.clear();
-		bFind = false;
 	}
 	std::string strName;
 	std::string strFilePath;
@@ -46,7 +51,6 @@ struct  _stImgSetInfo
 	bool bAutoScal;
 	bool bOwner;
 	IMGSETMAP imgMap;
-	bool bFind;
 };
 
 

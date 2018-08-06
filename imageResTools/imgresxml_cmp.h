@@ -21,15 +21,19 @@ public:
 	int cmpImgresXmlFile(const char* szXmlExPath,bool bImgSetCmp=true);
 
 
+	int cmp_imgRes_xmlFileSet(const std::map<string, _stImgSetInfo>& setImgInfo,bool bJoin = true, bool bImgSetCmp = true);
+
 
 	const std::map<string, _stImgSetInfo>& getMapInfo() { return m_mapImgInfo; };
 
 
-private:
+
+protected:
 	std::map<string, _stImgSetInfo> m_mapImgInfo;
 
 	std::map<string, _stImgSetInfo> diffMapAdd; // 增加的..
 	std::map<string, _stImgSetInfo> diffMapDee; //减少的..
+	std::map<string, _stImgSetInfo> diffMapModify; //减少的..
 };
 
 

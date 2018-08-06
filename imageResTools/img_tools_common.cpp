@@ -7,6 +7,7 @@ CImgToolComm * CImgToolComm::m_signleInstance = NULL;
 CImgToolComm::CImgToolComm()
 {
 	m_MapDirToName.clear();
+	m_Map3gRes.clear();
 }
 
 CImgToolComm::~CImgToolComm()
@@ -72,9 +73,14 @@ void CImgToolComm::init_map_dirtoname()
 	
 }
 
+void CImgToolComm::init_map_3gres()
+{
+
+}
+
 string CImgToolComm::getSetName(string strDirName)
 {
-	string strRes = "";
+	string strRes = strDirName;
 	Data dKey = strDirName.c_str();
 	dKey.lowerCase();
 	if (m_MapDirToName.find(dKey) != m_MapDirToName.end())
@@ -82,4 +88,26 @@ string CImgToolComm::getSetName(string strDirName)
 		return m_MapDirToName[dKey].strName;
 	}
 	return strRes;
+}
+
+bool CImgToolComm::is_3g_res(string strSetname, string strImgName)
+{
+	Data dKey = strSetname.c_str();
+	dKey += "_";
+	dKey += strImgName.c_str();
+	if (m_Map3gRes.find(strSetname) != m_Map3gRes.end())
+	{
+		return true;
+	}
+	
+	Data dName = strImgName.c_str();
+	dName.lowerCase();
+	if (dName.find("_3g_")> 0)
+	{
+		m_Map3gRes.insert(dKey);
+		return true;
+	}
+	return false;
+
+
 }
