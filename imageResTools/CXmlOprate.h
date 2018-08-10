@@ -27,7 +27,8 @@ public:
 	virtual XMLElement * CreateEle(string strname);
 protected:
 	XMLDocument * m_pDoc ;
-
+	std::string m_strFilePath;
 };
+
 
 #endif

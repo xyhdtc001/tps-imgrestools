@@ -8,9 +8,7 @@
 #include "afxdialogex.h"
 #include "ImgResXmlOpreate.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 
 
 #include <ostream>
@@ -18,6 +16,7 @@
 
 #include "sync_handle.h"
 #include "img_pack.h"
+#include "img_tools_common.h"
 
 
 // CimageResToolsDlg 对话框
@@ -30,9 +29,17 @@ CimageResToolsDlg::CimageResToolsDlg(CWnd* pParent /*=NULL*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+CimageResToolsDlg::~CimageResToolsDlg()
+{
+	CImgToolComm::ReleaseInstance();
+}
+
 void CimageResToolsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST_RESPACK, m_listOutPutImgInfo);
+	DDX_Control(pDX, IDC_LIST_RES_ADD, m_listAddInfo);
+	DDX_Control(pDX, IDC_LIST_RES_DEL, m_listDeeInfo);
 }
 
 BEGIN_MESSAGE_MAP(CimageResToolsDlg, CDialogEx)
@@ -41,6 +48,7 @@ BEGIN_MESSAGE_MAP(CimageResToolsDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CimageResToolsDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON3, &CimageResToolsDlg::OnBnClickedButton3)
 	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDC_BUTTON2, &CimageResToolsDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -102,6 +110,20 @@ void CimageResToolsDlg::initDlgItemText()
 				break;
 			}
 			GetDlgItem(IDC_EDIT_EX_RESXML)->SetWindowText(line.c_str());
+
+			//子目录打包.checkbutton
+			if (!getline(iFile,line))
+			{
+				break;
+			}
+			if (line == "childpack=true")
+			{
+				((CButton*)GetDlgItem(IDC_CHECK_CHILDDIR))->SetCheck(1);
+			}
+			else
+			{
+				((CButton*)GetDlgItem(IDC_CHECK_CHILDDIR))->SetCheck(0);
+			}
 		}
 	}
 }
@@ -139,6 +161,18 @@ void CimageResToolsDlg::saveDlgItemText()
 		//IDC_EDIT_EX_RESXML imgxml目录.
 		GetDlgItem(IDC_EDIT_EX_RESXML)->GetWindowText(strText);
 		oFile << strText.GetBuffer() << endl;
+		//子目录打包.checkbutton
+		if (((CButton*)GetDlgItem(IDC_CHECK_CHILDDIR)))
+		{
+			strText = "childpack=true";
+			oFile << strText.GetBuffer() << endl;
+		}
+		else
+		{
+			strText = " ";
+			oFile << strText.GetBuffer() << endl;
+		}
+		
 	}
 }
 
@@ -151,8 +185,18 @@ BOOL CimageResToolsDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
+	((CButton*)GetDlgItem(IDC_CHECK_CHILDDIR))->SetCheck(1);
 	// TODO:  在此添加额外的初始化代码
 	initDlgItemText();
+
+	m_mylistOutPutImgInfo.set_list_ctrl(&m_listOutPutImgInfo);
+	m_mylistOutPutImgInfo.init();
+	m_mylistAddInfo.set_list_ctrl(&m_listAddInfo);
+	m_mylistAddInfo.init();
+	m_mylistDeeInfo.set_list_ctrl(&m_listDeeInfo);
+	m_mylistDeeInfo.init();
+
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -194,6 +238,21 @@ HCURSOR CimageResToolsDlg::OnQueryDragIcon()
 
 
 
+void CimageResToolsDlg::update_list(CMyList* pList, const std::map<string, _stImgSetInfo> & mapInfo,int nLinePos)
+{
+	if (!pList)
+	{
+		return;
+	}
+	for (std::map<string, _stImgSetInfo>::const_iterator itMap = mapInfo.begin(); itMap != mapInfo.end();++itMap)
+	{
+		for (IMGSETMAP::const_iterator itSetImg = itMap->second.imgMap.begin(); itSetImg != itMap->second.imgMap.end();++itSetImg)
+		{
+			pList->set_img(itMap->first, itSetImg->second);
+		}	
+	}
+}
+
 void CimageResToolsDlg::OnBnClickedButton1()
 {
 	//开始打包.
@@ -216,6 +275,9 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	//子目录.
 	CButton *pBtn = (CButton*)(GetDlgItem(IDC_CHECK_CHILDDIR));
 	bool bChildDir = pBtn->GetCheck() == TRUE;
+
+
+	CImgToolComm::GetSignleInstance()->setWorkDir(strPackPath);
 
 
 	//imgresxml 
@@ -246,16 +308,18 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	{
 		//合并到XML里 .
 		const std::vector<Data>& vecResDir = imgPack.getPackDirVec();
-		for (int nIndex; nIndex < vecResDir.size();++ nIndex)
+		for (int nIndex = 0; nIndex < vecResDir.size();++ nIndex)
 		{
-			imgResXmlCur.joinXmlFile(vecResDir[nIndex].c_str());
+			std::map<string, _stImgSetInfo> curSetInfo;
+			imgResXmlCur.joinXmlFile(vecResDir[nIndex].c_str(),&curSetInfo);
+			update_list(&m_mylistOutPutImgInfo,curSetInfo,-1);
 		}
 	}
 
-
+	imgResXmlCur.SaveFile("");
 	//输出差异信息.
-
-
+	update_list(&m_mylistAddInfo, imgResXmlCur.get_diff_add(), -1);
+	update_list(&m_mylistDeeInfo, imgResXmlCur.get_diff_dee(), -1);
 
 
 	if (bRes)
@@ -279,4 +343,10 @@ void CimageResToolsDlg::OnClose()
 {
 	saveDlgItemText();
 	CDialogEx::OnClose();
+}
+
+
+void CimageResToolsDlg::OnBnClickedButton2()
+{
+	// 插入图片.
 }

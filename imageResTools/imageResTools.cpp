@@ -105,3 +105,9 @@ BOOL CimageResToolsApp::InitInstance()
 	return FALSE;
 }
 
+int CimageResToolsApp::ExitInstance()
+{
+	_CrtDumpMemoryLeaks();
+	return CWinApp::ExitInstance();
+}
+

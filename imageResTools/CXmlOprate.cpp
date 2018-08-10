@@ -3,9 +3,11 @@
 
 using namespace tinyxml2;
 
+
 CXmlOprate::CXmlOprate()
 {
 	m_pDoc = NULL;
+	m_strFilePath = "";
 }
 
 CXmlOprate::~CXmlOprate()
@@ -35,7 +37,7 @@ bool CXmlOprate::InitXmlFile(string strFile)
 		m_pDoc=NULL;
 		return false;
 	}
-
+	m_strFilePath = strFile;
 	return bRes;
 }
 
@@ -56,6 +58,10 @@ bool CXmlOprate::SaveFile(string strFilePath)
 	if (m_pDoc==NULL)
 	{
 		return false;
+	}
+	if (strFilePath.size() == 0 && m_strFilePath.size() != 0)
+	{
+		strFilePath = m_strFilePath ;
 	}
 	m_pDoc->SaveFile(strFilePath.c_str());
 	return true;

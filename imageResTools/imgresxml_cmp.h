@@ -26,7 +26,13 @@ public:
 
 	const std::map<string, _stImgSetInfo>& getMapInfo() { return m_mapImgInfo; };
 
+	const std::map<string, _stImgSetInfo>& get_diff_add() {
+		return diffMapAdd;
+	};
 
+	const std::map<string, _stImgSetInfo>& get_diff_dee() { return diffMapDee; };
+
+	const std::map<string, _stImgSetInfo>& get_diff_modify() { return diffMapModify; };
 
 protected:
 	std::map<string, _stImgSetInfo> m_mapImgInfo;

@@ -24,6 +24,8 @@ public:
 public:
 	virtual BOOL InitInstance();
 
+
+	virtual int ExitInstance(); // return app exit code
 // й╣ож
 
 	DECLARE_MESSAGE_MAP()

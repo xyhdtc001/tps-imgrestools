@@ -36,7 +36,7 @@ struct _sysFileParam
 };
 
 
-
+class CImgResXmlOpreate;
 class  CSyncHandle
 {
 	friend bool scanfiletoxml(const Data &filename, const Data& filepath, const Data& relaDir, void *pParam);
@@ -59,7 +59,6 @@ public:
 
 	//拆分文件夹.(1个文件夹拆成2个文件夹.)
 	static int split_dir(std::vector<Data> strFile,Data dDir, Data &dDirNewExport);
-
 
 private:
 

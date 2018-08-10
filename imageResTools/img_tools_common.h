@@ -20,6 +20,8 @@ public:
 
 	static CImgToolComm* GetSignleInstance();
 
+	static void ReleaseInstance();
+
 	/*
 	 *	设置工作目录
 	 */

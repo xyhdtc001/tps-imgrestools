@@ -12,6 +12,7 @@ CImgToolComm::CImgToolComm()
 
 CImgToolComm::~CImgToolComm()
 {
+
 }
 
 CImgToolComm* CImgToolComm::GetSignleInstance()
@@ -21,6 +22,15 @@ CImgToolComm* CImgToolComm::GetSignleInstance()
 		CImgToolComm::m_signleInstance = new CImgToolComm;
 	}
 	return CImgToolComm::m_signleInstance;
+}
+
+void CImgToolComm::ReleaseInstance()
+{
+	if (!CImgToolComm::m_signleInstance)
+	{
+		delete CImgToolComm::m_signleInstance;
+		CImgToolComm::m_signleInstance = NULL;
+	}
 }
 
 void CImgToolComm::setWorkDir(LPCSTR szWorkDir)

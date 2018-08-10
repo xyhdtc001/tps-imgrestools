@@ -115,6 +115,7 @@
     <ClInclude Include="imgres_tool_data.h" />
     <ClInclude Include="img_pack.h" />
     <ClInclude Include="img_tools_common.h" />
+    <ClInclude Include="MyList.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="sync_handle.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="imgresxml_cmp.cpp" />
     <ClCompile Include="img_pack.cpp" />
     <ClCompile Include="img_tools_common.cpp" />
+    <ClCompile Include="MyList.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

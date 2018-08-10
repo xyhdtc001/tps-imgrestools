@@ -18,6 +18,8 @@ struct  _stImgInfo
 		strName = "";
 		nWidth = 0;
 		nHeigth = 0;
+		nPosX = -1;
+		nPosY = -1;
 		memset(szMD5,0,65);
 	}
 	std::string strName;

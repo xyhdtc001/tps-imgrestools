@@ -33,6 +33,8 @@
 
 #include <afxcontrolbars.h>     // 功能区和控件条的 MFC 支持
 
+#define _CRTDBG_MAP_ALLO
+#include <crtdbg.h>
 
 #include "basecode/tinyxml2.h"
 #include <string>
@@ -45,9 +47,9 @@ using namespace tinyxml2;
 #include "imgres_tool_data.h"
 #include "basecode/LogOut.h"
 
-
-
-
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
 
 

@@ -13,7 +13,7 @@ public:
 
 
 	//合并tp打包出来的XML
-	int joinXmlFile(const char* szXmlExPath);
+	int joinXmlFile(const char* szXmlExPath,OUT std::map<string, _stImgSetInfo>* pSetInfo=NULL);
 
 
 	/*
@@ -30,6 +30,11 @@ public:
 	 *	设置图片的输出目录
 	 */
 	void set_tp_out_dir(const char * szOutDir);
+
+	/*
+	 *	保存文件。重载.
+	 */
+	virtual bool SaveFile(string strFilePath);
 
 protected:
 	/*

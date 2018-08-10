@@ -101,6 +101,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 		memset(szCommandLine, 0, 1024);
 		memset(szBuffer, 0, 4096);
 		//exe,XML,ͼƬ,Ŀ¼
+		Data dSetName = dDirName;
 		dDirName = m_strOutPutDir + dDirName;
 		sprintf_s(szCommandLine,"%s --max-size 1024 --data %s.xml --format cegui --sheet %s.png %s",m_strTexturePackExePath.c_str(), dDirName.c_str(), dDirName.c_str(),szPackSourcePath);
 
@@ -173,7 +174,7 @@ DWORD CImgPack::imp_pack(LPCSTR szPackSourcePath)
 			continue;
 		}
 		nRes = 0; //�ɹ�.
-		m_curVecOutPut.push_back(dDirName);
+		m_curVecOutPut.push_back(dSetName);
 	}
 
 	return nRes;

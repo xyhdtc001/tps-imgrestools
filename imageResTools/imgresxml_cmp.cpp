@@ -38,6 +38,7 @@ bool CImgresXmlCmp::InitXmlFile(string strFile)
 				m_mapImgInfo[strName].bAutoScal = false;
 				m_mapImgInfo[strName].bOwner = true;
 				m_mapImgInfo[strName].strFilePath = pImgset->Attribute("Imagefile");
+				m_mapImgInfo[strName].strName = strName;
 
 				XMLElement *pImage = pImgset->FirstChildElement("Image");
 				while (pImage)
@@ -105,6 +106,8 @@ int CImgresXmlCmp::cmp_imgRes_xmlFileSet(const std::map<string, _stImgSetInfo>& 
 			diffMapAdd[itOrg->first].strName = itExMap->second.strName;
 			diffMapAdd[itOrg->first].strFilePath = itExMap->second.strFilePath;
 
+			string strFilePath = itOrg->second.strFilePath;
+
 			//初始化.
 			diffMapDee[itOrg->first] = diffMapAdd[itOrg->first];
 
@@ -151,6 +154,7 @@ int CImgresXmlCmp::cmp_imgRes_xmlFileSet(const std::map<string, _stImgSetInfo>& 
 			if (bJoin)
 			{
 				itOrg->second = itExMap->second;
+				itOrg->second.strFilePath = strFilePath;
 			}
 		} while (0);
 
@@ -163,11 +167,15 @@ int CImgresXmlCmp::cmp_imgRes_xmlFileSet(const std::map<string, _stImgSetInfo>& 
 	{
 		if (std::find(vecFindSet.begin(), vecFindSet.end(), itExSet->first) == vecFindSet.end())
 		{
-			diffMapDee[itExSet->first] = itExSet->second;
+			diffMapAdd[itExSet->first] = itExSet->second;
 			//替换新数据.
 			if (bJoin)
 			{
-				m_mapImgInfo[itExSet->first] = itExSet->second;;
+				m_mapImgInfo[itExSet->first] = itExSet->second;
+				std::string strDef = "data/ui/imageset_comm/";
+				strDef = strDef + itExSet->second.strName;
+				strDef += ".png";
+				m_mapImgInfo[itExSet->first].strFilePath = strDef;
 			}
 		}
 		++itExSet;

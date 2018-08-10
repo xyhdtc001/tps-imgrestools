@@ -3,6 +3,7 @@
 
 #include "basecode/VFile.h"
 #include "basecode/directory.h"
+#include "ImgResXmlOpreate.h"
 
 CSyncHandle::CSyncHandle()
 {
@@ -308,5 +309,3 @@ int CSyncHandle::split_dir(std::vector<Data> strFile, Data dDir, Data& dDirNewEx
 	}
 	return nMoveCount;
 }
-
-
