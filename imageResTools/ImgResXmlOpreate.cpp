@@ -43,35 +43,54 @@ int CImgResXmlOpreate::joinXmlFile(const char* szXmlExPath, std::map<string, _st
 	 nRes = cmp_imgRes_xmlFileSet(tempMapInfo, true,false);
 	 if (nRes > 0)
 	 {
-		 std::map<string, _stImgSetInfo>::iterator itSetMap = tempMapInfo.begin();
-		 while (itSetMap != tempMapInfo.end())
+		 do 
 		 {
-			 string strSetname = itSetMap->first;
+			 std::map<string, _stImgSetInfo>::iterator itSetMap = tempMapInfo.begin();
+			 while (itSetMap != tempMapInfo.end())
+			 {
+				 string strSetname = itSetMap->first;
 
-			 //拷贝图片到目录.
-			 Data dPicFile = m_strOutDir + itSetMap->second.strName;
-			 dPicFile += ".png";
-			 Data dDestFile = m_mapImgInfo[strSetname].strFilePath;
-			 dDestFile = m_dClientDir + dDestFile;
-			 if (!VFile::isFileExist(dPicFile))
-			 {
-				 log_out(MAIN, LOG_ERR, "pic file is not finded .%s", dPicFile.c_str());
-			 }
-			 else
-			 {
-				 //备份文件.
-				 if (VFile::isFileExist(dDestFile))
+				 //拷贝图片到目录.
+				 Data dPicFile = m_strOutDir + itSetMap->second.strName;
+				 dPicFile += ".png";
+				 Data dDestFile = m_mapImgInfo[strSetname].strFilePath;
+				 dDestFile = m_dClientDir + dDestFile;
+				 if (!VFile::isFileExist(dPicFile))
 				 {
-					 Data dBackFile = m_strOutDir + "bak_img/";
-					 dBackFile = dBackFile + m_mapImgInfo[strSetname].strFilePath;;
-					 VDirectory::createFileDir(dBackFile);
-					 VFile::move(dDestFile, dBackFile, true);
+					 nRes = -1;
+					 log_out(MAIN, LOG_ERR, "pic file is not finded .%s", dPicFile.c_str());
+					 break;;
 				 }
-				 VDirectory::createFileDir(dDestFile);
-				 VFile::move(dPicFile, dDestFile, true);
+				 else
+				 {
+					 //备份文件.
+					 if (VFile::isFileExist(dDestFile))
+					 {
+						 Data dBackFile = m_strOutDir + "bak_img/";
+						 dBackFile = dBackFile + m_mapImgInfo[strSetname].strFilePath;;
+						 VDirectory::createFileDir(dBackFile);
+						 
+						 if (!VFile::move(dDestFile, dBackFile, true))
+						 {
+							 DWORD dwError = GetLastError();
+							 log_out(MAIN, LOG_ERR, "pic file is bak failed  .%s,%d", dDestFile.c_str(), dwError);
+							 nRes = -2;
+							 break;;
+						 }
+					 }
+					 VDirectory::createFileDir(dDestFile);
+					 
+					 if (VFile::move(dPicFile, dDestFile, true))
+					 {
+						 DWORD dwError = GetLastError();
+						 log_out(MAIN, LOG_ERR, "pic file move failed  .%s,%d", dPicFile.c_str(), dwError);
+						 nRes = -2;
+						 break;;
+					 }
+				 }
+				 ++itSetMap;
 			 }
-			 ++itSetMap;
-		 }
+		 } while (0);
 
 	 }
 	return nRes;
@@ -112,6 +131,12 @@ void CImgResXmlOpreate::set_tp_out_dir(const char * szOutDir)
 
 bool CImgResXmlOpreate::SaveFile(string strFilePath)
 {
+	if (strFilePath.size() == 0)
+	{
+		strFilePath = m_strFilePath;
+	}
+	return saveFileByData(m_mapImgInfo, m_strFilePath, m_pDoc);
+	/*
 	if (!m_pDoc )
 	{
 		m_pDoc = new XMLDocument;
@@ -158,6 +183,7 @@ bool CImgResXmlOpreate::SaveFile(string strFilePath)
 		++itMap;
 	}
 	return __super::SaveFile(strFilePath);
+	*/
 }
 
 void CImgResXmlOpreate::update_img_info()
@@ -266,6 +292,75 @@ int CImgResXmlOpreate::get_tp_xml_info(std::map<string, _stImgSetInfo>& pSetInf,
 	return 1;
 }
 
+
+bool CImgResXmlOpreate::saveFileByData(std::map<string, _stImgSetInfo>& pSetInf, string strFilePath, XMLDocument *pDocIn)
+{
+	if (strFilePath.size() == 0)
+	{
+		return false;
+	}
+	XMLDocument* pDoc;
+	if (pDocIn != NULL)
+	{
+		pDoc = pDocIn;
+	}
+	else
+	{
+		pDoc = new XMLDocument;
+	}
+	pDoc->Clear();
+	XMLElement *pRoot = pDoc->NewElement("ImagesetSet");
+	if (!pRoot)
+	{
+		log_out(MAIN, LOG_ERR, "CImgResXmlOpreate::SaveFile new El error");
+		pDoc->Clear();
+		delete pDoc;
+		return false;
+	}
+	m_pDoc->InsertFirstChild(pRoot);
+	//
+	std::map<string, _stImgSetInfo>::iterator itMap = pSetInf.begin();
+	while (itMap != pSetInf.end())
+	{
+		XMLElement *pSetNode = pDoc->NewElement("Imageset");
+		pRoot->InsertEndChild(pSetNode);
+		pSetNode->SetAttribute("AutoScaled", itMap->second.bAutoScal);
+		pSetNode->SetAttribute("Name", itMap->first.c_str());
+		pSetNode->SetAttribute("Imagefile", itMap->second.strFilePath.c_str());
+		if (itMap->second.nWidth > 0)
+		{
+			pSetNode->SetAttribute("NativeHorzRes", itMap->second.nWidth);
+		}
+
+		if (itMap->second.nHeigth > 0)
+		{
+			pSetNode->SetAttribute("NativeVertRes", itMap->second.nHeigth);
+		}
+
+		IMGSETMAP::iterator imgIter = itMap->second.imgMap.begin();
+		while (imgIter != itMap->second.imgMap.end())
+		{
+			XMLElement * pImgNode = pDoc->NewElement("Image");
+			pSetNode->InsertEndChild(pImgNode);
+			pImgNode->SetAttribute("Width", imgIter->second.nWidth);
+			pImgNode->SetAttribute("Height", imgIter->second.nHeigth);
+			pImgNode->SetAttribute("Name", imgIter->second.strName.c_str());
+			pImgNode->SetAttribute("XPos", imgIter->second.nPosX);
+			pImgNode->SetAttribute("YPos", imgIter->second.nPosY);
+			++imgIter;
+		}
+		++itMap;
+	}
+	pDoc->SaveFile(strFilePath.c_str());
+	if (!pDocIn)
+	{
+		pDoc->Clear();
+		delete pDoc;
+		pDoc = NULL;
+	}
+	return true;
+}
+
 int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo, IMGSETMAP& imgMap)
 {
 	IMGSETMAP mapres;
@@ -282,51 +377,43 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 
 	Data s3GAllName = imgInfo.strName.c_str();
 	s3GAllName.lowerCase();
-	s3GAllName += "_3g";
-
 	//是3g图片拆分.
 	if (m_pLastXml)
 	{
 		do 
 		{
-			const std::map<string, _stImgSetInfo> & lastMapInfo = m_pLastXml->getMapInfo();
-			if (lastMapInfo.find(szSetName) != lastMapInfo.end())
+			_stImgInfo imgOrg;
+			if (m_pLastXml->get_3g_info(s3GAllName.c_str(),imgOrg, szSetName))
 			{
-				const IMGSETMAP& setInfo = lastMapInfo.find(szSetName)->second.imgMap;
-
-				//检查3G图片大小是否有更改 。
-				IMGSETMAP::const_iterator itAll3gIter = setInfo.find(s3GAllName.c_str());
-				if (itAll3gIter != setInfo.end())
-				{
-					if (itAll3gIter->second.nWidth != imgInfo.nWidth || itAll3gIter->second.nHeigth != imgInfo.nHeigth)
-					{
-						break;
-					}
-				}
-				//最左边.
-				_stImgInfo imgLeft;
-				_stImgInfo imgMid;
-				_stImgInfo imgRight;
-				if (!get_3g_info(imgInfo.strName, imgLeft, szSetName) || !get_3g_info(imgInfo.strName + "_2", imgMid, szSetName) \
-					|| !get_3g_info(imgInfo.strName + "_3",imgRight, szSetName))
+				if (imgOrg.nWidth != imgInfo.nWidth || imgOrg.nHeigth != imgInfo.nHeigth)
 				{
 					break;
 				}
-				//取值 。
-				imgLeft.nPosX = imgInfo.nPosX;
-				imgLeft.nPosY = imgInfo.nPosY;
-				imgMap[imgLeft.strName] = imgLeft ;
-
-				imgMid.nPosX = imgInfo.nPosX + imgLeft.nWidth;
-				imgMid.nPosY = imgInfo.nPosY ;
-				imgMap[imgMid.strName] = imgMid;
-
-
-				imgRight.nPosX = imgInfo.nPosX  + imgLeft.nWidth + imgMid.nWidth;
-				imgRight.nPosY = imgInfo.nPosY;
-				imgMap[imgMid.strName] = imgMid;
-				return 1;
 			}
+			//最左边.
+			_stImgInfo imgLeft;
+			_stImgInfo imgMid;
+			_stImgInfo imgRight;
+			if (!m_pLastXml->get_3g_info(imgInfo.strName + "_l", imgLeft, szSetName) || !m_pLastXml->get_3g_info(imgInfo.strName + "_c", imgMid, szSetName) \
+				|| !m_pLastXml->get_3g_info(imgInfo.strName + "_r", imgRight, szSetName))
+			{
+				break;
+			}
+			//取值 。
+			imgLeft.nPosX = imgInfo.nPosX;
+			imgLeft.nPosY = imgInfo.nPosY;
+			imgMap[imgLeft.strName] = imgLeft;
+
+			imgMid.nPosX = imgInfo.nPosX + imgLeft.nWidth;
+			imgMid.nPosY = imgInfo.nPosY;
+			imgMap[imgMid.strName] = imgMid;
+
+
+			imgRight.nPosX = imgInfo.nPosX + imgLeft.nWidth + imgMid.nWidth;
+			imgRight.nPosY = imgInfo.nPosY;
+			imgMap[imgRight.strName] = imgRight;
+
+			return 1;
 
 		} while (0);
 
@@ -339,25 +426,21 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 	int nWidth = (float)imgInfo.nWidth*0.3;
 	stTemp.nWidth = nWidth;
 	stTemp.nHeigth = imgInfo.nHeigth;
-	stTemp.strName = imgInfo.strName;
-	imgMap[imgInfo.strName] = stTemp;
+	stTemp.strName = imgInfo.strName+"_l";
+	imgMap[imgInfo.strName+"_l"] = stTemp;
 
 	stTemp = imgInfo;
 	stTemp.nPosX = imgInfo.nPosX + nWidth;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = imgInfo.nWidth - nWidth * 2;
-	stTemp.strName = imgInfo.strName + "_2";
-	imgMap[imgInfo.strName + "_2"] = stTemp;
+	stTemp.strName = imgInfo.strName + "_c";
+	imgMap[imgInfo.strName + "_c"] = stTemp;
 
 	stTemp = imgInfo;
-	stTemp.nPosX = imgInfo.nPosX + imgInfo.nWidth - nWidth * 2;
+	stTemp.nPosX = imgInfo.nPosX + imgInfo.nWidth - nWidth ;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = nWidth;
-	stTemp.strName = imgInfo.strName + "_3";
-	imgMap[imgInfo.strName + "_3"] = stTemp;
-// 	stTemp = imgInfo;
-// 	stTemp.strName = s3GAllName.c_str();
-// 	imgMap.insert(std::make_pair(s3GAllName.c_str(), stTemp));
-
+	stTemp.strName = imgInfo.strName + "_r";
+	imgMap[imgInfo.strName + "_r"] = stTemp;
 	return 1;
 }

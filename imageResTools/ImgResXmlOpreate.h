@@ -51,6 +51,9 @@ public:
 	 *	获取tp 生成的文件信息.
 	 */
 	int get_tp_xml_info(std::map<string, _stImgSetInfo>& pSetInf, const char* szXmlExPath);
+
+
+	bool saveFileByData(std::map<string, _stImgSetInfo>& pSetInf,string strFile, XMLDocument *pDoc=NULL);
 protected:
 	/*
 	 *	处理3宫图片.

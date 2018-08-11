@@ -50,6 +50,7 @@ BEGIN_MESSAGE_MAP(CimageResToolsDlg, CDialogEx)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_BUTTON2, &CimageResToolsDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON5, &CimageResToolsDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON6, &CimageResToolsDlg::OnBnClickedButton6)
 END_MESSAGE_MAP()
 
 
@@ -245,6 +246,7 @@ void CimageResToolsDlg::update_list(CMyList* pList, const std::map<string, _stIm
 	{
 		return;
 	}
+	m_curMapDee = mapInfo;
 	for (std::map<string, _stImgSetInfo>::const_iterator itMap = mapInfo.begin(); itMap != mapInfo.end();++itMap)
 	{
 		for (IMGSETMAP::const_iterator itSetImg = itMap->second.imgMap.begin(); itSetImg != itMap->second.imgMap.end();++itSetImg)
@@ -286,6 +288,7 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
 
 	imgResXmlCur.set_work_dir(strRunPathDir);
+	imgResXmlLast.set_work_dir(strRunPathDir);
 	imgResXmlLast.update_img_info();
 	imgResXmlCur.set_lastxml_ptr(&imgResXmlLast);
 	imgResXmlCur.set_tp_out_dir(strOutPath.GetBuffer());
@@ -406,6 +409,7 @@ void CimageResToolsDlg::OnBnClickedButton5()
 	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
 
 	imgResXmlCur.set_work_dir(strRunPathDir);
+	imgResXmlLast.set_work_dir(strRunPathDir);
 	imgResXmlLast.update_img_info();
 	imgResXmlCur.set_lastxml_ptr(&imgResXmlLast);
 	imgResXmlCur.set_tp_out_dir(strOutPath.GetBuffer());
@@ -432,4 +436,22 @@ void CimageResToolsDlg::OnBnClickedButton5()
 		}
 	}
 	AfxMessageBox("failed !");
+}
+
+
+void CimageResToolsDlg::OnBnClickedButton6()
+{
+
+	CString strOutPath;
+	GetDlgItemText(IDC_EDIT_OUTPUT, strOutPath);
+
+
+	//导出缺失.
+	CImgResXmlOpreate xmOp;
+
+	Data dGenInfoFile = strOutPath.GetBuffer();
+	dGenInfoFile.makePath();
+	dGenInfoFile.formatPath();
+	dGenInfoFile += "diff_info_dee.xml";
+	xmOp.saveFileByData(m_curMapDee, dGenInfoFile.c_str());
 }

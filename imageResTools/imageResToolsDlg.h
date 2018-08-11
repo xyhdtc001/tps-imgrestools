@@ -51,4 +51,7 @@ public:
 	CMyList m_mylistDeeInfo;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton5();
+	afx_msg void OnBnClickedButton6();
+
+	std::map<string, _stImgSetInfo> m_curMapDee;
 };
