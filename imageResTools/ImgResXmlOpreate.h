@@ -36,6 +36,16 @@ public:
 	 */
 	virtual bool SaveFile(string strFilePath);
 
+	/*
+	 *	更新xml中3g位置信息，重复名字信息.
+	 */
+	void update_img_info();
+
+
+	/*
+	 *	获取所有的3g信息.
+	 */
+	bool get_3g_info(string strName, _stImgInfo& stInfo,string strSet);
 protected:
 	/*
 	 *	处理3宫图片.
@@ -48,5 +58,9 @@ private:
 	CImgResXmlOpreate* m_pLastXml;
 
 	Data m_strOutDir;
+
+
+	std::map<string, std::vector<_stImgInfo>> m_map3GInfo;
+	std::map<string, std::vector<_stImgInfo>> m_mapAllImgageInfo;
 };
 

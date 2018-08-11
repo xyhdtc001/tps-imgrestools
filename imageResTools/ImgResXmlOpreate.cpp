@@ -81,6 +81,7 @@ int CImgResXmlOpreate::joinXmlFile(const char* szXmlExPath, std::map<string, _st
 			stImgInfo.nWidth = pElChild->IntAttribute("Width", 0);
 			stImgInfo.nPosX = pElChild->IntAttribute("XPos",0);
 			stImgInfo.nPosY = pElChild->IntAttribute("YPos", 0);
+			stImgInfo.strSetName = strSetname;
 			imgSet[stImgInfo.strName] = stImgInfo;
 			int n3gRes = handle_3g_res(strSetname.c_str(), stImgInfo, imgSet);
 		} while (0);
@@ -179,8 +180,16 @@ bool CImgResXmlOpreate::SaveFile(string strFilePath)
 		pSetNode->SetAttribute("AutoScaled",itMap->second.bAutoScal);
 		pSetNode->SetAttribute("Name", itMap->first.c_str());
 		pSetNode->SetAttribute("Imagefile", itMap->second.strFilePath.c_str());
-		pSetNode->SetAttribute("NativeHorzRes", itMap->second.nWidth);
-		pSetNode->SetAttribute("NativeVertRes", itMap->second.nHeigth);
+		if (itMap->second.nWidth > 0)
+		{
+			pSetNode->SetAttribute("NativeHorzRes", itMap->second.nWidth);
+		}
+
+		if (itMap->second.nHeigth > 0)
+		{
+			pSetNode->SetAttribute("NativeVertRes", itMap->second.nHeigth);
+		}
+
 		IMGSETMAP::iterator imgIter = itMap->second.imgMap.begin();
 		while (imgIter != itMap->second.imgMap.end())
 		{
@@ -196,6 +205,47 @@ bool CImgResXmlOpreate::SaveFile(string strFilePath)
 		++itMap;
 	}
 	return __super::SaveFile(strFilePath);
+}
+
+void CImgResXmlOpreate::update_img_info()
+{
+	std::map<string, _stImgSetInfo>::iterator itMap = m_mapImgInfo.begin();
+	while (itMap != m_mapImgInfo.end())
+	{
+		IMGSETMAP::iterator imgIter = itMap->second.imgMap.begin();
+		while (imgIter != itMap->second.imgMap.end())
+		{
+			bool bIs = CImgToolComm::GetSignleInstance()->is_3g_res(itMap->first, imgIter->first);
+			if (bIs)
+			{
+				m_map3GInfo[imgIter->first].push_back(imgIter->second);
+			}
+			m_mapAllImgageInfo[imgIter->first].push_back(imgIter->second);
+
+			++imgIter;
+		}
+		++itMap;
+	}
+}
+
+
+bool CImgResXmlOpreate::get_3g_info(string strName, _stImgInfo& stInfo,string strSet)
+{
+	bool bRes = false;
+	if (m_map3GInfo.find(strName) != m_map3GInfo.end())
+	{
+		bRes = true;
+		for (int nIndex = 0; nIndex < m_map3GInfo[strName].size();++nIndex)
+		{
+			stInfo  = m_map3GInfo[strName][nIndex];
+			if (strSet == stInfo.strSetName)
+			{
+				return bRes;
+			}
+		}
+		return bRes;
+	}
+	return bRes;
 }
 
 int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo, IMGSETMAP& imgMap)
@@ -222,7 +272,6 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 		do 
 		{
 			const std::map<string, _stImgSetInfo> & lastMapInfo = m_pLastXml->getMapInfo();
-
 			if (lastMapInfo.find(szSetName) != lastMapInfo.end())
 			{
 				const IMGSETMAP& setInfo = lastMapInfo.find(szSetName)->second.imgMap;
@@ -237,35 +286,27 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 					}
 				}
 				//×î×ó±ß.
-				IMGSETMAP::const_iterator itLeft = setInfo.find(imgInfo.strName);
-				IMGSETMAP::const_iterator itMidd = setInfo.find(imgInfo.strName+"_2");
-				IMGSETMAP::const_iterator itRight = setInfo.find(imgInfo.strName+"_3");
-				if (itLeft== setInfo.end() || itMidd == setInfo.end() || itRight == setInfo.end())
+				_stImgInfo imgLeft;
+				_stImgInfo imgMid;
+				_stImgInfo imgRight;
+				if (!get_3g_info(imgInfo.strName, imgLeft, szSetName) || !get_3g_info(imgInfo.strName + "_2", imgMid, szSetName) \
+					|| !get_3g_info(imgInfo.strName + "_3",imgRight, szSetName))
 				{
 					break;
 				}
 				//È¡Öµ ¡£
-				_stImgInfo stTemp = itLeft->second;
-				stTemp.nPosX = imgInfo.nPosX;
-				stTemp.nPosY = imgInfo.nPosY;
-				imgMap.insert(std::make_pair(itLeft->first, stTemp));
+				imgLeft.nPosX = imgInfo.nPosX;
+				imgLeft.nPosY = imgInfo.nPosY;
+				imgMap[imgLeft.strName] = imgLeft ;
 
-				stTemp = itMidd->second;
-				stTemp.nPosX = imgInfo.nPosX + itLeft->second.nWidth;
-				stTemp.nPosY = imgInfo.nPosY ;
-				imgMap.insert(std::make_pair(itLeft->first, stTemp));
+				imgMid.nPosX = imgInfo.nPosX + imgLeft.nWidth;
+				imgMid.nPosY = imgInfo.nPosY ;
+				imgMap[imgMid.strName] = imgMid;
 
 
-				stTemp = itRight->second;
-				stTemp.nPosX = imgInfo.nPosX  +itLeft->second.nWidth + itMidd->second.nWidth;
-				stTemp.nPosY = imgInfo.nPosY;
-				imgMap.insert(std::make_pair(itLeft->first, stTemp));
-
-				stTemp = imgInfo;
-				stTemp.nPosX = imgInfo.nPosX ;
-				stTemp.nPosY = imgInfo.nPosY;
-				imgMap.insert(std::make_pair(s3GAllName.c_str(), stTemp));
-
+				imgRight.nPosX = imgInfo.nPosX  + imgLeft.nWidth + imgMid.nWidth;
+				imgRight.nPosY = imgInfo.nPosY;
+				imgMap[imgMid.strName] = imgMid;
 				return 1;
 			}
 
@@ -281,26 +322,24 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 	stTemp.nWidth = nWidth;
 	stTemp.nHeigth = imgInfo.nHeigth;
 	stTemp.strName = imgInfo.strName;
-	imgMap.insert(std::make_pair(imgInfo.strName, stTemp));
+	imgMap[imgInfo.strName] = stTemp;
 
 	stTemp = imgInfo;
 	stTemp.nPosX = imgInfo.nPosX + nWidth;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = imgInfo.nWidth - nWidth * 2;
 	stTemp.strName = imgInfo.strName + "_2";
-	imgMap.insert(std::make_pair(imgInfo.strName+"_2", stTemp));
-
+	imgMap[imgInfo.strName + "_2"] = stTemp;
 
 	stTemp = imgInfo;
 	stTemp.nPosX = imgInfo.nPosX + imgInfo.nWidth - nWidth * 2;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = nWidth;
 	stTemp.strName = imgInfo.strName + "_3";
-	imgMap.insert(std::make_pair(imgInfo.strName+"_3", stTemp));
-
-	stTemp = imgInfo;
-	stTemp.strName = s3GAllName.c_str();
-	imgMap.insert(std::make_pair(s3GAllName.c_str(), stTemp));
+	imgMap[imgInfo.strName + "_3"] = stTemp;
+// 	stTemp = imgInfo;
+// 	stTemp.strName = s3GAllName.c_str();
+// 	imgMap.insert(std::make_pair(s3GAllName.c_str(), stTemp));
 
 	return 1;
 }

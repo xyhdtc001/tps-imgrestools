@@ -49,6 +49,9 @@ bool CImgresXmlCmp::InitXmlFile(string strFile)
 						imgsetMap[strImgName].strName = strImgName;
 						imgsetMap[strImgName].nWidth = pImage->IntAttribute("Width");
 						imgsetMap[strImgName].nHeigth = pImage->IntAttribute("Height");
+						imgsetMap[strImgName].nPosX = pImage->IntAttribute("XPos");
+						imgsetMap[strImgName].nPosY = pImage->IntAttribute("YPos");
+						imgsetMap[strImgName].strSetName = strImgName;
 					}
 					pImage = pImage->NextSiblingElement("Image");
 				}

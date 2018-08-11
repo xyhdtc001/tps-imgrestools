@@ -285,11 +285,7 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
 
 	imgResXmlCur.set_work_dir(strRunPathDir);
-	Data dPackPath = strRunPathDir.GetBuffer();
-	dPackPath.makePath();
-	dPackPath.formatPath();
-	dPackPath = dPackPath + FILE_LASTIMGRES_STR;
-	imgResXmlLast.InitXmlFile(dPackPath.c_str());
+	imgResXmlLast.update_img_info();
 	imgResXmlCur.set_lastxml_ptr(&imgResXmlLast);
 	imgResXmlCur.set_tp_out_dir(strOutPath.GetBuffer());
 
@@ -348,5 +344,14 @@ void CimageResToolsDlg::OnClose()
 
 void CimageResToolsDlg::OnBnClickedButton2()
 {
-	// 插入图片.
+	// 整理目录下XML
+	//runpath 目录.
+	CString strRunPathDir;
+	GetDlgItemText(IDC_EDIT_RUNPATHDIR, strRunPathDir);
+
+	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
+
+	imgResXmlCur.set_work_dir(strRunPathDir);
+
+	imgResXmlCur.SaveFile("");
 }

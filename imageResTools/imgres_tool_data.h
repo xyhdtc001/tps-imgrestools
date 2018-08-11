@@ -21,7 +21,9 @@ struct  _stImgInfo
 		nPosX = -1;
 		nPosY = -1;
 		memset(szMD5,0,65);
+		strSetName = "";
 	}
+	std::string strSetName;
 	std::string strName;
 	int nWidth;
 	int nHeigth;
@@ -54,8 +56,6 @@ struct  _stImgSetInfo
 	bool bOwner;
 	IMGSETMAP imgMap;
 };
-
-
 
 
 
