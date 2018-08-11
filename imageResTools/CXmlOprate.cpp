@@ -41,15 +41,18 @@ bool CXmlOprate::InitXmlFile(string strFile)
 	return bRes;
 }
 
-bool CXmlOprate::CreateXmlDoc()
+
+bool CXmlOprate::CreateXmlDoc(string strRootNode)
 {
 	if (m_pDoc != NULL)
 	{
 		m_pDoc->Clear();
 		delete m_pDoc;;
-		m_pDoc= NULL;
+		m_pDoc = NULL;
 	}
 	m_pDoc = new XMLDocument;
+	XMLElement *pRoot = CreateEle(strRootNode);
+	m_pDoc->InsertFirstChild(pRoot);
 	return true;
 }
 

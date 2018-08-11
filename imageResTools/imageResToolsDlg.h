@@ -50,4 +50,5 @@ public:
 	CMyList m_mylistAddInfo;
 	CMyList m_mylistDeeInfo;
 	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton5();
 };

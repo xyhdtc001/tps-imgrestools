@@ -46,6 +46,11 @@ public:
 	 *	获取所有的3g信息.
 	 */
 	bool get_3g_info(string strName, _stImgInfo& stInfo,string strSet);
+
+	/*
+	 *	获取tp 生成的文件信息.
+	 */
+	int get_tp_xml_info(std::map<string, _stImgSetInfo>& pSetInf, const char* szXmlExPath);
 protected:
 	/*
 	 *	处理3宫图片.

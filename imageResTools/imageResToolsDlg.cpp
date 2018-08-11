@@ -49,6 +49,7 @@ BEGIN_MESSAGE_MAP(CimageResToolsDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &CimageResToolsDlg::OnBnClickedButton3)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_BUTTON2, &CimageResToolsDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON5, &CimageResToolsDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -300,23 +301,38 @@ void CimageResToolsDlg::OnBnClickedButton1()
 	imgPack.setXmlPtr(&imgResXmlCur,&imgResXmlLast);
 
 	bool bRes = imgPack.startPack(bChildDir);
+
+	CXmlOprate xmlGenInfo;
+	xmlGenInfo.CreateXmlDoc("genInfo");
+	XMLNode *pRoot = xmlGenInfo.GetNodePtr();
+
+
+	Data dGenInfoFile = strOutPath.GetBuffer();
+	dGenInfoFile.makePath();
+	dGenInfoFile.formatPath();
+	dGenInfoFile += "outGenInfo";
+	std::ofstream oFile(dGenInfoFile.c_str());
+	Data strRes;
 	if(bRes)
 	{
 		//合并到XML里 .
 		const std::vector<Data>& vecResDir = imgPack.getPackDirVec();
 		for (int nIndex = 0; nIndex < vecResDir.size();++ nIndex)
 		{
+			strRes += vecResDir[nIndex].c_str();
 			std::map<string, _stImgSetInfo> curSetInfo;
-			imgResXmlCur.joinXmlFile(vecResDir[nIndex].c_str(),&curSetInfo);
+			imgResXmlCur.get_tp_xml_info(curSetInfo,vecResDir[nIndex].c_str());
 			update_list(&m_mylistOutPutImgInfo,curSetInfo,-1);
+			if (nIndex < vecResDir.size()-1)
+			{
+				strRes += "|";
+			}
 		}
 	}
-
-	imgResXmlCur.SaveFile("");
-	//输出差异信息.
-	update_list(&m_mylistAddInfo, imgResXmlCur.get_diff_add(), -1);
-	update_list(&m_mylistDeeInfo, imgResXmlCur.get_diff_dee(), -1);
-
+	if (oFile)
+	{
+		oFile << strRes.c_str() << endl;
+	}
 
 	if (bRes)
 	{
@@ -354,4 +370,66 @@ void CimageResToolsDlg::OnBnClickedButton2()
 	imgResXmlCur.set_work_dir(strRunPathDir);
 
 	imgResXmlCur.SaveFile("");
+}
+
+
+void CimageResToolsDlg::OnBnClickedButton5()
+{
+	// 添加.
+	//开始打包.
+	CString strExePath;
+	GetDlgItemText(IDC_EDIT_EXEPATH, strExePath);
+
+	//tp exe 路径.
+	CString strPackPath;
+	GetDlgItemText(IDC_EDIT_PACKPATH, strPackPath);
+
+	// 输出目录
+	CString strOutPath;
+	GetDlgItemText(IDC_EDIT_OUTPUT, strOutPath);
+
+	//runpath 目录.
+	CString strRunPathDir;
+	GetDlgItemText(IDC_EDIT_RUNPATHDIR, strRunPathDir);
+
+
+	//子目录.
+	CButton *pBtn = (CButton*)(GetDlgItem(IDC_CHECK_CHILDDIR));
+	bool bChildDir = pBtn->GetCheck() == TRUE;
+
+
+	CImgToolComm::GetSignleInstance()->setWorkDir(strPackPath);
+
+
+	//imgresxml 
+	CImgResXmlOpreate imgResXmlLast; //上次的XML文件.(即将生成的XML中的新文件.)
+	CImgResXmlOpreate imgResXmlCur;  //当前的XML文件.(目前runpath中的文件)
+
+	imgResXmlCur.set_work_dir(strRunPathDir);
+	imgResXmlLast.update_img_info();
+	imgResXmlCur.set_lastxml_ptr(&imgResXmlLast);
+	imgResXmlCur.set_tp_out_dir(strOutPath.GetBuffer());
+
+	//读取文件.
+	Data dGenInfoFile = strOutPath.GetBuffer();
+	dGenInfoFile.makePath();
+	dGenInfoFile.formatPath();
+	dGenInfoFile += "outGenInfo";
+	std::ifstream iFile(dGenInfoFile.c_str());
+	if (iFile)
+	{
+		string  strline;
+		if (getline(iFile, strline))
+		{
+			//合并到XML里 
+			imgResXmlCur.joinXmlFile(strline.c_str());
+			imgResXmlCur.SaveFile("");
+			//输出差异信息.
+			update_list(&m_mylistAddInfo, imgResXmlCur.get_diff_add(), -1);
+			update_list(&m_mylistDeeInfo, imgResXmlCur.get_diff_dee(), -1);
+			AfxMessageBox("sucessed!");
+			return;
+		}
+	}
+	AfxMessageBox("failed !");
 }

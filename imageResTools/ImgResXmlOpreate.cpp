@@ -18,108 +18,61 @@ CImgResXmlOpreate::~CImgResXmlOpreate()
 
 int CImgResXmlOpreate::joinXmlFile(const char* szXmlExPath, std::map<string, _stImgSetInfo>* pSetInf)
 {
-	//TP生成的图片.xml 添加到imgres中.
-	if (!szXmlExPath)
-	{
-		return -1;
-	}
-	Data dFilePath = m_strOutDir + szXmlExPath;
-	Data dXmlFile = dFilePath + ".xml";
-	CXmlOprate xmlOp;
-	xmlOp.InitXmlFile(dXmlFile.c_str());
-	XMLNode * pNodeTojoin = xmlOp.GetNodePtr();
-	if (!pNodeTojoin)
-	{
-		return -2;
-	}
-	XMLElement *pEl = pNodeTojoin->ToElement();
-	if (!pEl || !pEl->Attribute("Name") || !pEl->Attribute("Imagefile") || !pEl->Attribute("NativeHorzRes") || !pEl->Attribute("NativeVertRes") || !pEl->Attribute("AutoScaled"))
-	{
-		return -3;
-	}
+	int nRes = 0;
+	Data dxmlFiles = szXmlExPath;
+	std::vector<Data> vecFiles;
+	dxmlFiles.split("|", vecFiles);
+
 
 	std::map<string, _stImgSetInfo> tempMapInfo;
-
-	std::string strSetname = pEl->Attribute("Name");
-	// common data 进行转换 看是否有更改name
-	strSetname = CImgToolComm::GetSignleInstance()->getSetName(strSetname);
-
-	if (m_mapImgInfo.find(strSetname) == m_mapImgInfo.end())
+	for (int nIdex = 0; nIdex < vecFiles.size();++nIdex)
 	{
-		//全部添加.
-		if (diffMapAdd.find(strSetname) != diffMapAdd.end())
+		nRes = get_tp_xml_info(tempMapInfo, vecFiles[nIdex].c_str());
+		if (nRes <= 0)
 		{
-			// 重复添加.
-			CString strError;
-			strError.Format("%s 重复添加,是否继续", strSetname.c_str());
-			int nRes = AfxMessageBox(strError,MB_YESNO);
-			if (nRes == IDNO)
-			{
-				return -5;
-			}
+			log_out(MAIN, LOG_ERR, "get tp xml info error .%s", szXmlExPath);
+			return nRes;
 		}
-	}
-	tempMapInfo[strSetname].bAutoScal = pEl->BoolAttribute("AutoScaled",false);
-	tempMapInfo[strSetname].strName = strSetname;
-	tempMapInfo[strSetname].strFilePath = "";// m_mapImgInfo[strSetname].strFilePath; //为空？？(后面再处理.)
-	tempMapInfo[strSetname].nWidth = pEl->IntAttribute("NativeHorzRes", 1024);
-	tempMapInfo[strSetname].nHeigth = pEl->IntAttribute("NativeVertRes", 1024);
-	IMGSETMAP& imgSet = tempMapInfo[strSetname].imgMap;
-	XMLElement *pElChild =  pEl->FirstChildElement("Image");
-	while (pElChild)
-	{
-		do 
-		{
-			if (!pElChild->Attribute("Name")|| !pElChild->Attribute("XPos")|| !pElChild->Attribute("YPos")|| !pElChild->Attribute("Width")\
-				|| !pElChild->Attribute("Height"))
-			{
-				break;
-			}
-			_stImgInfo  stImgInfo;
-			stImgInfo.strName = pElChild->Attribute("Name");
-			stImgInfo.nHeigth = pElChild->IntAttribute("Height",0);
-			stImgInfo.nWidth = pElChild->IntAttribute("Width", 0);
-			stImgInfo.nPosX = pElChild->IntAttribute("XPos",0);
-			stImgInfo.nPosY = pElChild->IntAttribute("YPos", 0);
-			stImgInfo.strSetName = strSetname;
-			imgSet[stImgInfo.strName] = stImgInfo;
-			int n3gRes = handle_3g_res(strSetname.c_str(), stImgInfo, imgSet);
-		} while (0);
-		pElChild = pElChild->NextSiblingElement("Image");
 	}
 
 	if (pSetInf)
 	{
 		*pSetInf = tempMapInfo;
 	}
-
 	//合并进imgres.
-	 int nRes = cmp_imgRes_xmlFileSet(tempMapInfo, true,false);
+	 nRes = cmp_imgRes_xmlFileSet(tempMapInfo, true,false);
 	 if (nRes > 0)
 	 {
-		 //拷贝图片到目录.
-		 Data dPicFile = m_strOutDir+ szXmlExPath;
-		 dPicFile += ".png";
-		 Data dDestFile = m_mapImgInfo[strSetname].strFilePath;
-		 dDestFile = m_dClientDir + dDestFile;
-		 if (!VFile::isFileExist(dPicFile))
+		 std::map<string, _stImgSetInfo>::iterator itSetMap = tempMapInfo.begin();
+		 while (itSetMap != tempMapInfo.end())
 		 {
-			 log_out(MAIN, LOG_ERR, "pic file is not finded .%s",dPicFile.c_str());
-		 }
-		 else
-		 {
-			 //备份文件.
-			 if (VFile::isFileExist(dDestFile))
+			 string strSetname = itSetMap->first;
+
+			 //拷贝图片到目录.
+			 Data dPicFile = m_strOutDir + itSetMap->second.strName;
+			 dPicFile += ".png";
+			 Data dDestFile = m_mapImgInfo[strSetname].strFilePath;
+			 dDestFile = m_dClientDir + dDestFile;
+			 if (!VFile::isFileExist(dPicFile))
 			 {
-				 Data dBackFile = m_strOutDir + "bak_img/";
-				 dBackFile = dBackFile + m_mapImgInfo[strSetname].strFilePath;;
-				 VDirectory::createFileDir(dBackFile);
-				 VFile::move(dDestFile, dBackFile, true);
+				 log_out(MAIN, LOG_ERR, "pic file is not finded .%s", dPicFile.c_str());
 			 }
-			 VDirectory::createFileDir(dDestFile);
-			 VFile::move(dPicFile, dDestFile, true);
+			 else
+			 {
+				 //备份文件.
+				 if (VFile::isFileExist(dDestFile))
+				 {
+					 Data dBackFile = m_strOutDir + "bak_img/";
+					 dBackFile = dBackFile + m_mapImgInfo[strSetname].strFilePath;;
+					 VDirectory::createFileDir(dBackFile);
+					 VFile::move(dDestFile, dBackFile, true);
+				 }
+				 VDirectory::createFileDir(dDestFile);
+				 VFile::move(dPicFile, dDestFile, true);
+			 }
+			 ++itSetMap;
 		 }
-		 
+
 	 }
 	return nRes;
 }
@@ -246,6 +199,71 @@ bool CImgResXmlOpreate::get_3g_info(string strName, _stImgInfo& stInfo,string st
 		return bRes;
 	}
 	return bRes;
+}
+
+int CImgResXmlOpreate::get_tp_xml_info(std::map<string, _stImgSetInfo>& pSetInf, const char* szXmlExPath)
+{
+	//TP生成的图片.xml 添加到imgres中.
+	if (!szXmlExPath)
+	{
+		return -1;
+	}
+	Data dFilePath = m_strOutDir + szXmlExPath;
+	Data dXmlFile = dFilePath + ".xml";
+	CXmlOprate xmlOp;
+	xmlOp.InitXmlFile(dXmlFile.c_str());
+	XMLNode * pNodeTojoin = xmlOp.GetNodePtr();
+	if (!pNodeTojoin)
+	{
+		return -2;
+	}
+	XMLElement *pEl = pNodeTojoin->ToElement();
+	if (!pEl || !pEl->Attribute("Name") || !pEl->Attribute("Imagefile") || !pEl->Attribute("NativeHorzRes") || !pEl->Attribute("NativeVertRes") || !pEl->Attribute("AutoScaled"))
+	{
+		return -3;
+	}
+
+	std::map<string, _stImgSetInfo>& tempMapInfo = pSetInf;
+
+	std::string strSetname = pEl->Attribute("Name");
+	// common data 进行转换 看是否有更改name
+	strSetname = CImgToolComm::GetSignleInstance()->getSetName(strSetname);
+	if (tempMapInfo.find(strSetname) != tempMapInfo.end())
+	{
+		//重复
+		log_out(MAIN, LOG_ERR, "get_tp_xml_info repeat set .%s", strSetname.c_str());
+		return 0;
+	}
+	tempMapInfo[strSetname].bAutoScal = pEl->BoolAttribute("AutoScaled", false);
+	tempMapInfo[strSetname].strName = strSetname;
+	tempMapInfo[strSetname].strFilePath = pEl->Attribute("Imagefile");// m_mapImgInfo[strSetname].strFilePath; //为空？？(后面再处理.)
+	tempMapInfo[strSetname].nWidth = pEl->IntAttribute("NativeHorzRes", 1024);
+	tempMapInfo[strSetname].nHeigth = pEl->IntAttribute("NativeVertRes", 1024);
+	IMGSETMAP& imgSet = tempMapInfo[strSetname].imgMap;
+	XMLElement *pElChild = pEl->FirstChildElement("Image");
+	while (pElChild)
+	{
+		do
+		{
+			if (!pElChild->Attribute("Name") || !pElChild->Attribute("XPos") || !pElChild->Attribute("YPos") || !pElChild->Attribute("Width")\
+				|| !pElChild->Attribute("Height"))
+			{
+				break;
+			}
+			_stImgInfo  stImgInfo;
+			stImgInfo.strName = pElChild->Attribute("Name");
+			stImgInfo.nHeigth = pElChild->IntAttribute("Height", 0);
+			stImgInfo.nWidth = pElChild->IntAttribute("Width", 0);
+			stImgInfo.nPosX = pElChild->IntAttribute("XPos", 0);
+			stImgInfo.nPosY = pElChild->IntAttribute("YPos", 0);
+			stImgInfo.strSetName = strSetname;
+			imgSet[stImgInfo.strName] = stImgInfo;
+			int n3gRes = handle_3g_res(strSetname.c_str(), stImgInfo, imgSet);
+		} while (0);
+		pElChild = pElChild->NextSiblingElement("Image");
+	}
+
+	return 1;
 }
 
 int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo, IMGSETMAP& imgMap)

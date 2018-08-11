@@ -17,7 +17,7 @@ public:
 
 	virtual bool InitXmlFile(string strFile);
 
-	virtual bool CreateXmlDoc();
+	virtual bool CreateXmlDoc(string strRootNode);
 
 	virtual bool SaveFile(string strFilePath);
 
