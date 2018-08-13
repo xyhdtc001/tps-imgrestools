@@ -70,7 +70,7 @@ int CImgResXmlOpreate::joinXmlFile(const char* szXmlExPath, std::map<string, _st
 						 dBackFile = dBackFile + m_mapImgInfo[strSetname].strFilePath;;
 						 VDirectory::createFileDir(dBackFile);
 						 
-						 if (!VFile::move(dDestFile, dBackFile, true))
+						 if (!VFile::copyFile(dDestFile, dBackFile, true))
 						 {
 							 DWORD dwError = GetLastError();
 							 log_out(MAIN, LOG_ERR, "pic file is bak failed  .%s,%d", dDestFile.c_str(), dwError);
@@ -80,7 +80,7 @@ int CImgResXmlOpreate::joinXmlFile(const char* szXmlExPath, std::map<string, _st
 					 }
 					 VDirectory::createFileDir(dDestFile);
 					 
-					 if (VFile::move(dPicFile, dDestFile, true))
+					 if (!VFile::copyFile(dPicFile, dDestFile, true))
 					 {
 						 DWORD dwError = GetLastError();
 						 log_out(MAIN, LOG_ERR, "pic file move failed  .%s,%d", dPicFile.c_str(), dwError);
@@ -317,7 +317,7 @@ bool CImgResXmlOpreate::saveFileByData(std::map<string, _stImgSetInfo>& pSetInf,
 		delete pDoc;
 		return false;
 	}
-	m_pDoc->InsertFirstChild(pRoot);
+	pDoc->InsertFirstChild(pRoot);
 	//
 	std::map<string, _stImgSetInfo>::iterator itMap = pSetInf.begin();
 	while (itMap != pSetInf.end())
@@ -374,9 +374,27 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 	{
 		return 0;
 	}
+	bool bIsVertical = CImgToolComm::GetSignleInstance()->is_vertical_3g_res(imgInfo.strName);
 
+	float nf = (float)imgInfo.nHeigth /(float)imgInfo.nWidth;
+	if (nf > 3)
+	{
+		bIsVertical = true;
+	}
 	Data s3GAllName = imgInfo.strName.c_str();
 	s3GAllName.lowerCase();
+
+
+	string strExt1 = "_l";
+	string strExt2 = "_c";
+	string strExt3 = "_r";
+	if (bIsVertical)
+	{
+		strExt1 = "_t";
+		strExt2 = "_c";
+		strExt3 = "_b";
+	}
+
 	//ÊÇ3gÍ¼Æ¬²ð·Ö.
 	if (m_pLastXml)
 	{
@@ -394,8 +412,8 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 			_stImgInfo imgLeft;
 			_stImgInfo imgMid;
 			_stImgInfo imgRight;
-			if (!m_pLastXml->get_3g_info(imgInfo.strName + "_l", imgLeft, szSetName) || !m_pLastXml->get_3g_info(imgInfo.strName + "_c", imgMid, szSetName) \
-				|| !m_pLastXml->get_3g_info(imgInfo.strName + "_r", imgRight, szSetName))
+			if (!m_pLastXml->get_3g_info(imgInfo.strName + strExt1.c_str(), imgLeft, szSetName) || !m_pLastXml->get_3g_info(imgInfo.strName + strExt2.c_str(), imgMid, szSetName) \
+				|| !m_pLastXml->get_3g_info(imgInfo.strName + strExt3.c_str(), imgRight, szSetName))
 			{
 				break;
 			}
@@ -406,11 +424,21 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 
 			imgMid.nPosX = imgInfo.nPosX + imgLeft.nWidth;
 			imgMid.nPosY = imgInfo.nPosY;
+			if (bIsVertical)
+			{
+				imgMid.nPosX = imgInfo.nPosX;
+				imgMid.nPosY = imgInfo.nPosY + imgLeft.nHeigth;
+			}
 			imgMap[imgMid.strName] = imgMid;
 
 
 			imgRight.nPosX = imgInfo.nPosX + imgLeft.nWidth + imgMid.nWidth;
 			imgRight.nPosY = imgInfo.nPosY;
+			if (bIsVertical)
+			{
+				imgMid.nPosX = imgInfo.nPosX;
+				imgMid.nPosY = imgInfo.nPosY + imgLeft.nHeigth + imgMid.nHeigth;
+			}
 			imgMap[imgRight.strName] = imgRight;
 
 			return 1;
@@ -424,23 +452,43 @@ int CImgResXmlOpreate::handle_3g_res(const char* szSetName, _stImgInfo& imgInfo,
 	stTemp.nPosX = imgInfo.nPosX;
 	stTemp.nPosY = imgInfo.nPosY;
 	int nWidth = (float)imgInfo.nWidth*0.3;
+	int nHeigth = (float)imgInfo.nHeigth*0.3;;
 	stTemp.nWidth = nWidth;
 	stTemp.nHeigth = imgInfo.nHeigth;
-	stTemp.strName = imgInfo.strName+"_l";
-	imgMap[imgInfo.strName+"_l"] = stTemp;
+	stTemp.strName = imgInfo.strName+strExt1.c_str();
+	if (bIsVertical)
+	{
+		stTemp.nWidth = imgInfo.nWidth;
+		stTemp.nHeigth = nHeigth ;
+	}
+	imgMap[imgInfo.strName+ strExt1.c_str()] = stTemp;
 
 	stTemp = imgInfo;
 	stTemp.nPosX = imgInfo.nPosX + nWidth;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = imgInfo.nWidth - nWidth * 2;
-	stTemp.strName = imgInfo.strName + "_c";
-	imgMap[imgInfo.strName + "_c"] = stTemp;
+	stTemp.strName = imgInfo.strName + strExt2.c_str();
+	if (bIsVertical)
+	{
+		stTemp.nPosX = imgInfo.nPosX;
+		stTemp.nPosY = imgInfo.nPosY + nHeigth;
+		stTemp.nWidth = imgInfo.nWidth;
+		stTemp.nHeigth = imgInfo.nHeigth - nHeigth * 2;
+	}
+	imgMap[imgInfo.strName + strExt2.c_str()] = stTemp;
 
 	stTemp = imgInfo;
 	stTemp.nPosX = imgInfo.nPosX + imgInfo.nWidth - nWidth ;
 	stTemp.nPosY = imgInfo.nPosY;
 	stTemp.nWidth = nWidth;
-	stTemp.strName = imgInfo.strName + "_r";
-	imgMap[imgInfo.strName + "_r"] = stTemp;
+	stTemp.strName = imgInfo.strName + strExt3.c_str();
+	if (bIsVertical)
+	{
+		stTemp.nPosX = imgInfo.nPosX;
+		stTemp.nPosY = imgInfo.nPosY + imgInfo.nHeigth -  nHeigth;
+		stTemp.nWidth = imgInfo.nWidth;
+		stTemp.nHeigth = nHeigth ;
+	}
+	imgMap[imgInfo.strName + strExt3.c_str()] = stTemp;
 	return 1;
 }

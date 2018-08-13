@@ -55,10 +55,16 @@ public:
 	 *	是否是3宫格图片.
 	 */
 	bool is_3g_res(string strSetname,string strImgName);
+
+	/*
+	 *	是否是竖向的3宫图片
+	 */
+	bool is_vertical_3g_res( string strImgName);
 private:
 
 	std::map<Data, _stImgSetInfo> m_MapDirToName;
 	std::set<Data> m_Map3gRes;
+	std::set<Data> m_MapVert3gRes;
 	Data m_workDir;
 };
 

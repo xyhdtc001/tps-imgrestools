@@ -8,6 +8,7 @@ CImgToolComm::CImgToolComm()
 {
 	m_MapDirToName.clear();
 	m_Map3gRes.clear();
+	m_Map3gRes.insert("t_3g");
 }
 
 CImgToolComm::~CImgToolComm()
@@ -40,6 +41,7 @@ void CImgToolComm::setWorkDir(LPCSTR szWorkDir)
 		m_workDir = szWorkDir;
 		m_workDir.makePath();
 		init_map_dirtoname();
+		init_map_3gres();
 	}
 }
 
@@ -78,14 +80,40 @@ void CImgToolComm::init_map_dirtoname()
 
 		pChildNode = pChildNode->NextSibling();
 	}
-
-
-	
 }
 
 void CImgToolComm::init_map_3gres()
 {
+	Data filePath = m_workDir + "common_set_ver3g.xml";
+	CXmlOprate xmlOp;
+	xmlOp.InitXmlFile(m_workDir.c_str());
+	if (!xmlOp.GetNodePtr())
+	{
+		LogOut(MAIN, LOG_ERR, "faild open %s,xml init failed .", filePath.c_str());
+		return;
+	}
+	m_MapVert3gRes.clear();
+	XMLNode* pRoot = xmlOp.GetNodePtr();
+	XMLNode *pChildNode = pRoot->FirstChild();
+	while (pChildNode)
+	{
+		do
+		{
+			XMLElement *pEl = pChildNode->ToElement();
+			if (!pEl)
+			{
+				break;
+			}
+			if (!pEl->Attribute("imgname"))
+			{
+				break;
+			}
+			m_MapVert3gRes.insert(pEl->Attribute("imgname"));
 
+		} while (0);
+
+		pChildNode = pChildNode->NextSibling();
+	}
 }
 
 string CImgToolComm::getSetName(string strDirName)
@@ -120,4 +148,13 @@ bool CImgToolComm::is_3g_res(string strSetname, string strImgName)
 	return false;
 
 
+}
+
+bool CImgToolComm::is_vertical_3g_res(string strImgName)
+{
+	if (m_MapVert3gRes.find(strImgName) != m_MapVert3gRes.end())
+	{
+		return true;
+	}
+	return false;
 }

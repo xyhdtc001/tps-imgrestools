@@ -101,7 +101,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\imageResTools.ico">
+    <Image Include="Release\imageResTools.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
