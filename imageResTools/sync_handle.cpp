@@ -242,7 +242,7 @@ int CSyncHandle::split_dir(std::vector<Data> strFile, Data dDir, Data& dDirNewEx
 	{
 		dDirNewExport = dDir.substr(0,dDir.length()-1);
 		//判断原来目录是否是拆分过的。
-		int nNewIndex = 0;
+		int nNewIndex = 1;
 		if (dDirNewExport.find("_sp") == dDirNewExport.length()-4 )
 		{
 			Data dOldIndex = dDirNewExport.substr(dDirNewExport.length()-1,1);
@@ -259,7 +259,7 @@ int CSyncHandle::split_dir(std::vector<Data> strFile, Data dDir, Data& dDirNewEx
 		dDirNewExport.makePath();
 	}
 
-	if (!VDirectory::isDirectoryExist(dDirNewExport))
+	if (VDirectory::isDirectoryExist(dDirNewExport))
 	{
 		//目录已经存在.
 		return nMoveCount;

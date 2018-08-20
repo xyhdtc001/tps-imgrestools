@@ -198,6 +198,7 @@ BOOL CimageResToolsDlg::OnInitDialog()
 	m_mylistDeeInfo.set_list_ctrl(&m_listDeeInfo);
 	m_mylistDeeInfo.init();
 
+	GetDlgItem(IDC_STATIC_HELP)->SetWindowText("资源目录下common_set_dirtoname.xml,节点:\"setname\"=xxx,\"dirname\"=\"xxxx\" 配置目录对应的set名字.\r\n资源目录下common_set_ver3g.xml配置竖向3G，节点:\"imgname\"=\"xxxximgname\"");
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }

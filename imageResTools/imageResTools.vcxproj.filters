@@ -104,5 +104,8 @@
     <Image Include="Release\imageResTools.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\imageResTools.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

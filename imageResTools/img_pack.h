@@ -54,6 +54,11 @@ public:
 	 */
 	const std::vector<Data>& getPackDirVec() { return m_curVecOutPut; };
 
+	/*
+	 *	设置上次文档
+	 */
+	void setLastXml(CImgresXmlCmp* pxml) { m_pXmlLast = pxml; };
+
 protected:
 
 	/*
@@ -82,7 +87,7 @@ protected:
 	/*
 	 *	计算图片
 	 */
-	int img_pack_calc(Data dAbsDir,std::vector<Data> vecFiles,OUT std::vector<Data>& vecResFiles);
+	int img_pack_calc(Data& dAbsDir,std::vector<Data>& vecFiles, std::vector<Data>& vecResFiles);
 
 	/*
 	 *	对比2个图集图片.B中比A多出来的图片.

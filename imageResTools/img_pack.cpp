@@ -18,6 +18,7 @@ CImgPack::CImgPack()
 	m_nDeep = 1;
 	m_bLanResPack = false;
 	m_nWorkDirNum = 0;
+	m_pXmlLast = NULL;
 }
 
 CImgPack::~CImgPack()
@@ -245,12 +246,12 @@ int CImgPack::img_pack_split(Data dToSplit,Data& newDir)
 	}
 	//情况2.
 	std::vector<Data> toSplitFile;
-	int nCount = img_pack_calc(m_strMainResDir+dToSplit, vecFiles, toSplitFile);
+	int nCount = img_pack_calc(dToSplit, vecFiles, toSplitFile);
 	if (nCount > 0)
 	{
 		//拆分文件夹.
 		Data dDirNewExport = "";
-		int nRes = CSyncHandle::split_dir(toSplitFile, m_strMainResDir + dToSplit, dDirNewExport);
+		int nRes = CSyncHandle::split_dir(toSplitFile,  dToSplit, dDirNewExport);
 		if (nRes != toSplitFile.size())
 		{
 			LogOut(MAIN, LOG_ERR, "splitDir Fail ");
@@ -297,30 +298,26 @@ int find_rect_area(int* szPic,CSize szRect,bool bSetRect,int nMaxLen,CPoint &ptL
 	int nCurLineY = 0;
 	for (int nIndexX = 0; nIndexX < nMaxLen; ++nIndexX)
 	{
+		bool bVLineOk = true;
 		for (int nIndexY = 0; nIndexY < nMaxLen;++ nIndexY)
 		{
-			if (nIndexX + szRect.cx >=nMaxLen)
+			if (nIndexX + szRect.cx >=nMaxLen )
 			{
-				nCurLineX = 0;
+				continue;
+			}
+			if (nIndexY + szRect.cy >= nMaxLen )
+			{
 				continue;
 			}
 			int nCurPos = nIndexX + nIndexY*nMaxLen;
 			int &nPointValue = *(szPic + nCurPos);
 			if (nPointValue > 0)
 			{
-				nCurLineX = 0;
 				continue;
 			}
-			++nCurLineX;
-			bool bVLineOk = true;
 			//匹配高度是否足够.
 			for (int nIndexEx = 0; nIndexEx < szRect.cy; ++nIndexEx)
 			{
-				if (nIndexEx + nIndexY >= nMaxLen)
-				{
-					bVLineOk = false;
-					break;
-				}
 				int &nPointValue = *(szPic + nCurPos + nIndexEx*nMaxLen);
 				if (nPointValue>0)
 				{
@@ -328,18 +325,33 @@ int find_rect_area(int* szPic,CSize szRect,bool bSetRect,int nMaxLen,CPoint &ptL
 					break;
 				}
 			}
+			//匹配宽度是否足够.
+			for (int nIndexEx = 0; nIndexEx < szRect.cx;++nIndexEx)
+			{
+				int &nPointValue = *(szPic + nCurPos + nIndexEx);
+				if (nPointValue > 0)
+				{
+					bVLineOk = false;
+					break;
+				}
+			}
+
 			if (bVLineOk == false)
 			{
 				nCurLineX = 0;
 				continue;
 			}
-			if(nCurLineX == szRect.cx)
+			if(bVLineOk)
 			{ 
 				nResX = nIndexX;
 				nResY = nIndexY;
 				bOk = true;
 				break;
 			}
+		}
+		if (bOk)
+		{
+			break;;
 		}
 	}
 	ptLT.x = nResX;
@@ -351,7 +363,7 @@ int find_rect_area(int* szPic,CSize szRect,bool bSetRect,int nMaxLen,CPoint &ptL
 			// 赋值.
 			for (int nIndex = nResY; nIndex < szRect.cy;++nIndex)
 			{
-				memset(szPic+nResX+nMaxLen*nIndex,1,szRect.cx);
+				memset(szPic+nResX+nMaxLen*nIndex,1,szRect.cx*sizeof(int));
 			}
 		}
 		return 0;
@@ -359,7 +371,7 @@ int find_rect_area(int* szPic,CSize szRect,bool bSetRect,int nMaxLen,CPoint &ptL
 	return -1;
 }
 
-int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::vector<Data>& vecResFiles)
+int CImgPack::img_pack_calc(Data& dAbsDir, std::vector<Data>& vecFiles, std::vector<Data>& vecResFiles)
 {
 	int nRes = 0;
 	std::vector<_stImgCalcInfo> vecStInfo;
@@ -376,11 +388,11 @@ int CImgPack::img_pack_calc(Data dAbsDir, std::vector<Data> vecFiles, OUT std::v
 			continue;
 		}
 		CImage img;
-		if(img.Load(dImgAbsPath.c_str()))
+		if(img.Load(dImgAbsPath.c_str())>= 0)
 		{
 			_stImgCalcInfo st;
-			st.nHeigth = img.GetHeight();
-			st.nWidth = img.GetWidth();
+			st.nHeigth = img.GetHeight()+2;
+			st.nWidth = img.GetWidth()+2;
 			st.nImgIndex = nIndex;
 			vecStInfo.push_back(st);
 			mapWidth[st.nWidth].push_back(vecStInfo.size() - 1);
